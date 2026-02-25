@@ -1,0 +1,1534 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Context Engineering - Visual Blueprint</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700;800&family=Poppins:wght@600;700&family=Inter:wght@400;500;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+    <style>
+      /* CORE DESIGN SYSTEM - DARK TECHNICAL 
+        */
+      :root {
+        --bg-primary: #020617;
+        --bg-secondary: #0f172a;
+        --accent-cyan: #06b6d4;
+        --accent-lime: #84cc16;
+        --accent-red: #ef4444;
+        --text-primary: #f8fafc;
+        --text-secondary: #94a3b8;
+        --border: #334155;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background-color: #000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        font-family: "Inter", sans-serif;
+        color: var(--text-primary);
+        overflow: hidden;
+      }
+
+      /* INTERACTIVE CONTROLLER */
+      .nav-controls {
+        position: fixed;
+        bottom: 30px;
+        right: 40px;
+        display: flex;
+        gap: 15px;
+        z-index: 2000;
+      }
+
+      .nav-btn {
+        background: rgba(15, 23, 42, 0.9);
+        border: 2px solid var(--accent-cyan);
+        color: var(--accent-cyan);
+        padding: 12px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-family: "JetBrains Mono", monospace;
+        font-weight: 700;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+      }
+
+      .nav-btn:hover {
+        background: var(--accent-cyan);
+        color: #000;
+      }
+
+      .slide-counter {
+        position: fixed;
+        bottom: 35px;
+        left: 40px;
+        font-family: "JetBrains Mono", monospace;
+        color: var(--accent-cyan);
+        font-weight: 700;
+        z-index: 2000;
+        background: rgba(0, 0, 0, 0.6);
+        padding: 8px 15px;
+        border-radius: 6px;
+      }
+
+      /* SLIDE CONTAINER */
+      .slide-container {
+        width: 1280px;
+        height: 720px;
+        background-color: var(--bg-primary);
+        overflow: hidden;
+        position: relative;
+        display: none;
+        flex-direction: column;
+        padding: 60px 80px;
+        box-shadow: 0 40px 100px rgba(0, 0, 0, 1);
+        border: 1px solid var(--border);
+      }
+
+      .slide-container.active {
+        display: flex;
+      }
+
+      /* HIGH-CONTRAST STYLES */
+      .legacy-contrast {
+        color: var(--accent-red);
+        font-family: "JetBrains Mono", monospace;
+        font-weight: 800;
+        text-transform: uppercase;
+        background: rgba(239, 68, 68, 0.15);
+        padding: 4px 12px;
+        border-radius: 4px;
+        border: 1px solid rgba(239, 68, 68, 0.4);
+      }
+
+      .ai-native-contrast {
+        color: var(--accent-lime);
+        font-family: "JetBrains Mono", monospace;
+        font-weight: 800;
+        text-transform: uppercase;
+        text-shadow: 0 0 15px rgba(132, 204, 22, 0.8);
+        background: rgba(132, 204, 22, 0.2);
+        padding: 4px 12px;
+        border-radius: 4px;
+        border: 1px solid rgba(132, 204, 22, 0.5);
+      }
+
+      .blueprint-contrast {
+        color: var(--text-primary);
+        font-weight: 800;
+        border-bottom: 6px solid var(--accent-cyan);
+        display: inline-block;
+        line-height: 1.2;
+        padding-bottom: 5px;
+      }
+
+      /* TYPOGRAPHY */
+      h1,
+      h2,
+      h3 {
+        font-family: "Poppins", sans-serif;
+        margin: 0;
+      }
+      h1 {
+        font-size: 82px;
+        line-height: 1.1;
+        font-weight: 700;
+      }
+      .slide-title {
+        font-size: 48px;
+        margin-bottom: 40px;
+        border-left: 12px solid var(--accent-cyan);
+        padding-left: 30px;
+        flex-shrink: 0;
+      }
+      .slide-title span {
+        color: var(--accent-cyan);
+      }
+
+      p,
+      li {
+        font-size: 24px;
+        line-height: 1.5;
+        color: var(--text-secondary);
+      }
+
+      .content-area {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        z-index: 10;
+        position: relative;
+      }
+
+      /* VISUAL COMPONENTS */
+      .tile {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 40px;
+      }
+      .two-column {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 60px;
+      }
+
+      .bar-row {
+        display: flex;
+        align-items: center;
+        gap: 30px;
+        margin-bottom: 25px;
+      }
+      .bar-label {
+        width: 300px;
+        text-align: right;
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--text-secondary);
+      }
+      .bar-track {
+        flex-grow: 1;
+        height: 50px;
+        background: #1e293b;
+        border-radius: 10px;
+        overflow: hidden;
+      }
+      .bar-fill {
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          var(--accent-cyan),
+          var(--accent-lime)
+        );
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        padding-right: 25px;
+        font-weight: 800;
+        color: #000;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th {
+        text-align: left;
+        padding: 20px;
+        background: rgba(6, 182, 212, 0.15);
+        color: var(--accent-cyan);
+        font-weight: 800;
+        border-bottom: 5px solid var(--accent-cyan);
+        font-size: 22px;
+      }
+      td {
+        padding: 20px;
+        border-bottom: 1px solid var(--border);
+        font-size: 21px;
+      }
+
+      /* Bleed Layout */
+      .slide-container.bleed-image-layout {
+        padding: 0;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        align-items: start;
+      }
+      .bleed-text-side {
+        padding: 80px;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+      .bleed-image-side {
+        height: 720px;
+        width: 100%;
+        object-fit: cover;
+      }
+
+      .bg-glow {
+        position: absolute;
+        top: -100px;
+        right: -100px;
+        width: 500px;
+        height: 500px;
+        background: radial-gradient(
+          circle,
+          rgba(6, 182, 212, 0.08) 0%,
+          transparent 70%
+        );
+        z-index: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="slide-counter" id="slideCounter">Slide 1 / 18</div>
+
+    <div class="nav-controls">
+      <button class="nav-btn" onclick="prevSlide()">PREV</button>
+      <button class="nav-btn" onclick="nextSlide()">NEXT</button>
+    </div>
+
+    <!-- Slide 1: Title_Slide -->
+    <div class="slide-container active" id="slide1">
+      <div class="bg-glow"></div>
+      <div
+        class="content-area"
+        style="text-align: center; justify-content: center"
+      >
+        <p
+          style="
+            color: var(--accent-cyan);
+            font-weight: 700;
+            letter-spacing: 6px;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+          "
+        >
+          Engineering Tech Talk
+        </p>
+        <h1>
+          Your Repo Is Fighting Your
+          <span style="color: var(--accent-lime)">AI Agents</span>
+        </h1>
+        <p style="margin-top: 50px; margin-bottom: 70px">
+          <span class="blueprint-contrast"
+            >The Engineering Blueprint for Context Engineering & AI-Native
+            Repository Architectures.</span
+          >
+        </p>
+        <div
+          style="
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            align-items: center;
+          "
+        >
+          <div
+            class="tile"
+            style="
+              width: 400px;
+              border-color: var(--accent-red);
+              background: rgba(239, 68, 68, 0.05);
+            "
+          >
+            <p
+              style="
+                font-size: 16px;
+                margin-bottom: 20px;
+                color: var(--accent-red);
+                font-weight: 700;
+              "
+            >
+              ❌ LEGACY REPOSITORY
+            </p>
+            <div
+              class="legacy-contrast"
+              style="font-size: 22px; display: block; padding: 15px"
+            >
+              README.md only
+            </div>
+          </div>
+          <div style="font-size: 50px; color: var(--accent-cyan)">
+            <i class="fa-solid fa-arrow-right-long"></i>
+          </div>
+          <div
+            class="tile"
+            style="
+              width: 450px;
+              border-color: var(--accent-lime);
+              background: rgba(132, 204, 22, 0.05);
+            "
+          >
+            <p
+              style="
+                font-size: 16px;
+                margin-bottom: 20px;
+                color: var(--accent-lime);
+                font-weight: 700;
+              "
+            >
+              ✅ AI-NATIVE REPOSITORY
+            </p>
+            <div
+              class="ai-native-contrast"
+              style="font-size: 22px; display: block; padding: 15px"
+            >
+              AGENTS.md + Instructions
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 2: Two_Column_Tiled_Text -->
+    <div class="slide-container" id="slide2">
+      <h2 class="slide-title">
+        Parametric vs. <span>Grounded</span> Knowledge
+      </h2>
+      <div class="content-area">
+        <div class="two-column">
+          <div class="tile">
+            <div
+              style="
+                font-size: 50px;
+                color: var(--accent-cyan);
+                margin-bottom: 20px;
+              "
+            >
+              <i class="fa-solid fa-brain"></i>
+            </div>
+            <h3>Parametric Knowledge</h3>
+            <p>
+              Weights-based memory. Knows general framework syntax and patterns
+              but lacks project-specific truth and private API logic.
+            </p>
+          </div>
+          <div class="tile" style="border-color: var(--accent-lime)">
+            <div
+              style="
+                font-size: 50px;
+                color: var(--accent-lime);
+                margin-bottom: 20px;
+              "
+            >
+              <i class="fa-solid fa-database"></i>
+            </div>
+            <h3>Grounded Context</h3>
+            <p>
+              Repository truth. Private interfaces, local conventions, and
+              real-time state via
+              <span class="ai-native-contrast">AGENTS.md + Instructions</span>.
+            </p>
+          </div>
+        </div>
+        <div
+          style="
+            margin-top: 50px;
+            padding: 40px;
+            background: rgba(239, 68, 68, 0.1);
+            border-radius: 20px;
+            border: 2px dashed var(--accent-red);
+          "
+        >
+          <p style="margin: 0; text-align: center; font-size: 24px">
+            <strong>The Decision Gap:</strong> 44% of agents skip docs and
+            hallucinate using parametric memory when grounded context is
+            missing.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 3: Styled_Bullet_Points -->
+    <div class="slide-container" id="slide3">
+      <h2 class="slide-title">The Silent Killer: <span>Context Rot</span></h2>
+      <div class="content-area">
+        <div
+          style="
+            height: 420px;
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            position: relative;
+            padding: 60px;
+          "
+        >
+          <div
+            style="
+              display: flex;
+              flex-direction: column;
+              justify-content: space-between;
+              height: 100%;
+            "
+          >
+            <div
+              style="
+                width: 100%;
+                height: 65px;
+                background: var(--accent-lime);
+                border-radius: 10px;
+                display: flex;
+                align-items: center;
+                padding: 0 30px;
+                color: #000;
+                font-weight: 800;
+                font-size: 26px;
+              "
+            >
+              🟢 0–50%: Safe Zone (Instructions Retained)
+            </div>
+            <div
+              style="
+                width: 80%;
+                height: 65px;
+                background: #fbbf24;
+                border-radius: 10px;
+                display: flex;
+                align-items: center;
+                padding: 0 30px;
+                color: #000;
+                font-weight: 800;
+                font-size: 26px;
+              "
+            >
+              🟡 50–80%: Compression Zone (Summarization)
+            </div>
+            <div
+              style="
+                width: 95%;
+                height: 65px;
+                background: var(--accent-red);
+                border-radius: 10px;
+                display: flex;
+                align-items: center;
+                padding: 0 30px;
+                color: #fff;
+                font-weight: 800;
+                font-size: 26px;
+              "
+            >
+              🔴 80–95%: Danger Zone (Rules Discarded)
+            </div>
+            <div
+              style="
+                width: 100%;
+                height: 65px;
+                background: #000;
+                border: 2px solid var(--accent-red);
+                border-radius: 10px;
+                display: flex;
+                align-items: center;
+                padding: 0 30px;
+                color: var(--accent-red);
+                font-weight: 800;
+                font-size: 26px;
+              "
+            >
+              💀 95%+: Context Rot (Conventions Lost)
+            </div>
+          </div>
+        </div>
+        <p
+          style="
+            margin-top: 40px;
+            font-style: italic;
+            text-align: center;
+            font-size: 26px;
+          "
+        >
+          Million-token windows silently discard architectural rules via
+          auto-compaction.
+        </p>
+      </div>
+    </div>
+
+    <!-- Slide 4: Two_Column_Tiled_Text -->
+    <div class="slide-container" id="slide4">
+      <h2 class="slide-title">Two Models of <span>Context Delivery</span></h2>
+      <div class="content-area">
+        <div class="two-column">
+          <div class="tile" style="border-left: 10px solid var(--accent-cyan)">
+            <h3 style="margin-bottom: 30px; font-size: 32px">
+              Passive Steering (Push)
+            </h3>
+            <ul style="list-style: none; padding: 0">
+              <li style="margin-bottom: 25px">
+                <i
+                  class="fa-solid fa-square-plus"
+                  style="color: var(--accent-lime); margin-right: 20px"
+                ></i>
+                System Prompt Injection
+              </li>
+              <li style="margin-bottom: 25px">
+                <i
+                  class="fa-solid fa-square-plus"
+                  style="color: var(--accent-lime); margin-right: 20px"
+                ></i>
+                Always Present Context
+              </li>
+              <li style="margin-bottom: 25px">
+                <i
+                  class="fa-solid fa-square-plus"
+                  style="color: var(--accent-lime); margin-right: 20px"
+                ></i>
+                <span class="ai-native-contrast">AGENTS.md + Instructions</span>
+              </li>
+            </ul>
+          </div>
+          <div class="tile" style="border-left: 10px solid var(--accent-lime)">
+            <h3 style="margin-bottom: 30px; font-size: 32px">
+              Active Retrieval (Pull)
+            </h3>
+            <ul style="list-style: none; padding: 0">
+              <li style="margin-bottom: 25px">
+                <i
+                  class="fa-solid fa-magnifying-glass"
+                  style="color: var(--accent-cyan); margin-right: 20px"
+                ></i>
+                On-demand Search (RAG)
+              </li>
+              <li style="margin-bottom: 25px">
+                <i
+                  class="fa-solid fa-magnifying-glass"
+                  style="color: var(--accent-cyan); margin-right: 20px"
+                ></i>
+                Agent Initiates Retrieval
+              </li>
+              <li style="margin-bottom: 25px">
+                <i
+                  class="fa-solid fa-magnifying-glass"
+                  style="color: var(--accent-cyan); margin-right: 20px"
+                ></i>
+                Dynamic exploration tools
+              </li>
+            </ul>
+          </div>
+        </div>
+        <p
+          style="
+            margin-top: 50px;
+            text-align: center;
+            font-weight: 800;
+            color: var(--text-primary);
+            font-size: 28px;
+          "
+        >
+          Passive ensures reliability. Active enables scale.
+        </p>
+      </div>
+    </div>
+
+    <!-- Slide 5: Bar_Chart_For_Comparisons -->
+    <div class="slide-container" id="slide5">
+      <h2 class="slide-title">Vercel: <span>Passive Steering</span> Wins</h2>
+      <div class="content-area">
+        <div class="bar-chart">
+          <div class="bar-row">
+            <div class="bar-label">
+              Baseline (<span class="legacy-contrast">README.md only</span>)
+            </div>
+            <div class="bar-track">
+              <div class="bar-fill" style="width: 53%">53% Success</div>
+            </div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label">Active Skills (RAG/Pull)</div>
+            <div class="bar-track">
+              <div class="bar-fill" style="width: 53%">53% Success</div>
+            </div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label">Skills + Prompting</div>
+            <div class="bar-track">
+              <div class="bar-fill" style="width: 79%">79% Success</div>
+            </div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label" style="color: var(--accent-lime)">
+              Passive (<span class="ai-native-contrast">AGENTS.md</span>)
+            </div>
+            <div class="bar-track" style="border: 2px solid var(--accent-lime)">
+              <div
+                class="bar-fill"
+                style="width: 100%; background: var(--accent-lime)"
+              >
+                100% SUCCESS
+              </div>
+            </div>
+          </div>
+        </div>
+        <p style="margin-top: 60px; text-align: center; font-size: 28px">
+          Passive files remove the <strong>Decision Gap</strong> for new
+          framework knowledge.
+        </p>
+      </div>
+    </div>
+
+    <!-- Slide 6: Bleed_Image_Right (Pillars 1-3) -->
+    <div class="slide-container bleed-image-layout" id="slide6">
+      <div class="bleed-text-side">
+        <h2 class="slide-title">Five Pillars of <span>AI-Native</span></h2>
+        <div style="display: flex; flex-direction: column; gap: 25px">
+          <div
+            class="tile"
+            style="border-left: 8px solid var(--accent-cyan); padding: 25px"
+          >
+            <h3 style="font-size: 24px; margin-bottom: 10px">
+              1. Unified Knowledge
+            </h3>
+            <p style="font-size: 19px">
+              One root <span class="ai-native-contrast">AGENTS.md</span> +
+              global instructions.
+            </p>
+          </div>
+          <div
+            class="tile"
+            style="border-left: 8px solid var(--accent-lime); padding: 25px"
+          >
+            <h3 style="font-size: 24px; margin-bottom: 10px">
+              2. Scoped Precision
+            </h3>
+            <p style="font-size: 19px">
+              Glob-matched rules (<code>**/*.tsx</code>) for token efficiency.
+            </p>
+          </div>
+          <div
+            class="tile"
+            style="border-left: 8px solid var(--accent-cyan); padding: 25px"
+          >
+            <h3 style="font-size: 24px; margin-bottom: 10px">
+              3. Monorepo Mastery
+            </h3>
+            <p style="font-size: 19px">
+              Nested routing with local override precedence.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="image-container">
+        <img
+          class="bleed-image-side"
+          src="http://googleusercontent.com/image_collection/image_retrieval/17329438390509995464"
+          alt="Modern repository folder structure visualization"
+        />
+      </div>
+    </div>
+
+    <!-- Slide 7: Bleed_Image_Right (Pillars 4-5) -->
+    <div class="slide-container bleed-image-layout" id="slide7">
+      <div class="bleed-text-side">
+        <h2 class="slide-title">Maintenance & <span>Ingestion</span></h2>
+        <div style="display: flex; flex-direction: column; gap: 40px">
+          <div class="tile" style="border-left: 8px solid var(--accent-lime)">
+            <h3 style="font-size: 28px">4. AI-Readable Docs</h3>
+            <p>
+              Structured headings + <code>llms.txt</code> for efficient bot
+              crawling.
+            </p>
+          </div>
+          <div class="tile" style="border-left: 8px solid var(--accent-cyan)">
+            <h3 style="font-size: 28px">5. Living Maintenance</h3>
+            <p>
+              CI-integrated audits to prevent context drift and instructions
+              rot.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="image-container">
+        <img
+          class="bleed-image-side"
+          src="http://googleusercontent.com/image_collection/image_retrieval/13697459736547977181"
+          alt="Software maintenance checklist visual"
+        />
+      </div>
+    </div>
+
+    <!-- Slide 8: Image_Right_Text_Left (Disclosure) -->
+    <div class="slide-container" id="slide8">
+      <h2 class="slide-title">
+        Anthropic: <span>Progressive Disclosure</span>
+      </h2>
+      <div class="content-area">
+        <div class="two-column">
+          <div
+            style="
+              display: flex;
+              flex-direction: column;
+              justify-content: center;
+            "
+          >
+            <ul style="list-style: none; padding: 0">
+              <li style="margin-bottom: 35px">
+                <strong style="color: var(--accent-cyan); font-size: 24px"
+                  >Level 1: YAML Frontmatter</strong
+                ><br />
+                Always loaded criteria. Defines "When" to activate.
+              </li>
+              <li style="margin-bottom: 35px">
+                <strong style="color: var(--accent-lime); font-size: 24px"
+                  >Level 2: SKILL.md Body</strong
+                ><br />
+                Loaded ON MATCH. Workflows and logic.
+              </li>
+              <li style="margin-bottom: 35px">
+                <strong style="color: var(--accent-cyan); font-size: 24px"
+                  >Level 3: Linked Resources</strong
+                ><br />
+                Loaded ON NEED. Heavy guides and references.
+              </li>
+            </ul>
+          </div>
+          <div
+            style="
+              background: #000;
+              border: 2px solid var(--border);
+              border-radius: 20px;
+              height: 100%;
+              overflow: hidden;
+            "
+          >
+            <img
+              src="http://googleusercontent.com/image_collection/image_retrieval/3272075003316859856"
+              alt="Clean code editor interface"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 9: Two_Column_Tiled_Text -->
+    <div class="slide-container" id="slide9">
+      <h2 class="slide-title">The <span>MCP + Skills</span> Architecture</h2>
+      <div class="content-area">
+        <div class="two-column">
+          <div class="tile">
+            <div
+              style="
+                font-size: 60px;
+                color: var(--accent-lime);
+                margin-bottom: 25px;
+              "
+            >
+              <i class="fa-solid fa-kitchen-set"></i>
+            </div>
+            <h3>MCP = The Kitchen</h3>
+            <p>
+              Data connectivity, tool access, and API state. The infrastructure
+              layer.
+            </p>
+          </div>
+          <div class="tile">
+            <div
+              style="
+                font-size: 60px;
+                color: var(--accent-cyan);
+                margin-bottom: 25px;
+              "
+            >
+              <i class="fa-solid fa-book-open"></i>
+            </div>
+            <h3>Skills = The Recipes</h3>
+            <p>
+              Logic, conventions, and behavioral expertise. The execution layer.
+            </p>
+          </div>
+        </div>
+        <div style="margin-top: 80px; text-align: center">
+          <p
+            style="
+              font-size: 34px;
+              font-weight: 800;
+              color: var(--text-primary);
+            "
+          >
+            Chef (Agent) + Kitchen (MCP) + Recipes (Skills) = <br /><span
+              style="color: var(--accent-lime)"
+              >Deterministic Repository Success</span
+            >
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 10: Two_Column_Tiled_Text (Tooling) -->
+    <div class="slide-container" id="slide10">
+      <h2 class="slide-title">Tooling: <span>Copilot vs. Devin</span></h2>
+      <div class="content-area">
+        <div class="two-column">
+          <div class="tile">
+            <h3 style="color: var(--accent-cyan); margin-bottom: 25px">
+              GitHub Copilot
+            </h3>
+            <p>
+              IDE Plugin. <br />~200K window. <br />Latency: &lt;1s.
+              <br />Primary: <code>copilot-instructions.md</code>.
+            </p>
+          </div>
+          <div class="tile">
+            <h3 style="color: var(--accent-lime); margin-bottom: 25px">
+              Cognition Devin
+            </h3>
+            <p>
+              Autonomous Agent. <br />10M+ window. <br />Latency: &gt;10s.
+              <br />Primary: <span class="ai-native-contrast">AGENTS.md</span>.
+            </p>
+          </div>
+        </div>
+        <div
+          style="
+            margin-top: 60px;
+            text-align: center;
+            border: 2px solid var(--border);
+            padding: 30px;
+            border-radius: 20px;
+            background: rgba(15, 23, 42, 0.5);
+          "
+        >
+          <p style="margin: 0; font-size: 26px">
+            Both benefit from <strong>Passive Steering</strong> and the
+            <strong>Five Pillars</strong>.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 11: Table -->
+    <div class="slide-container" id="slide11">
+      <h2 class="slide-title">The <span>Academic Reality Check</span></h2>
+      <div class="content-area">
+        <table>
+          <thead>
+            <tr>
+              <th>Study</th>
+              <th>Tested Task</th>
+              <th>Outcome</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="color: var(--accent-lime); font-weight: 800">
+                Vercel (2026)
+              </td>
+              <td>New APIs (Novel)</td>
+              <td style="color: var(--accent-lime)">100% Task Success</td>
+            </tr>
+            <tr>
+              <td>ETH Zürich</td>
+              <td>SWE-BENCH (Standard)</td>
+              <td>Marginal Success Gains</td>
+            </tr>
+            <tr>
+              <td style="color: var(--accent-cyan); font-weight: 800">
+                ETH Zürich
+              </td>
+              <td>Instruction Compliance</td>
+              <td>Tool use 1.6x more frequent</td>
+            </tr>
+          </tbody>
+        </table>
+        <div
+          style="
+            margin-top: 60px;
+            padding: 30px;
+            border-left: 8px solid var(--accent-cyan);
+            background: var(--bg-secondary);
+          "
+        >
+          <p style="margin: 0; font-size: 24px">
+            <strong>Conclusion:</strong> Focus on
+            <strong>Tribal Knowledge</strong>. Don't waste tokens on
+            auto-generated public docs.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 12: Image_Right_Text_Left (Monorepo) -->
+    <div class="slide-container" id="slide12">
+      <h2 class="slide-title">Monorepo: <span>Nearest-File Routing</span></h2>
+      <div class="content-area">
+        <div class="two-column">
+          <div
+            style="
+              display: flex;
+              flex-direction: column;
+              justify-content: center;
+            "
+          >
+            <div class="tile" style="margin-bottom: 30px">
+              <h3 style="font-size: 26px">Precedence Hierarchy</h3>
+              <p style="font-size: 19px">
+                Agent editing <code>/frontend/</code> loads:<br />1.
+                <code>/frontend/AGENTS.md</code> (Override)<br />2.
+                <code>/Root/AGENTS.md</code> (Global)
+              </p>
+            </div>
+            <div
+              style="
+                background: rgba(239, 68, 68, 0.1);
+                border: 3px solid var(--accent-red);
+                padding: 20px;
+                border-radius: 12px;
+              "
+            >
+              <p style="margin: 0; color: #fff; font-size: 18px">
+                <strong>Zero Leakage:</strong> No backend rules for frontend
+                agents.
+              </p>
+            </div>
+          </div>
+          <div
+            style="
+              border: 2px solid var(--border);
+              border-radius: 20px;
+              overflow: hidden;
+            "
+          >
+            <img
+              src="http://googleusercontent.com/image_collection/image_retrieval/4773775486231215897"
+              alt="Software architecture routing diagram"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 13: Tiled_Text_With_Icons (Stack) -->
+    <div class="slide-container" id="slide13">
+      <h2 class="slide-title">The Hybrid <span>Strategy Stack</span></h2>
+      <div class="content-area">
+        <div style="display: flex; flex-direction: column; gap: 15px">
+          <div
+            class="tile"
+            style="
+              padding: 15px 35px;
+              border-left: 15px solid var(--accent-cyan);
+            "
+          >
+            L5: ACTIVE - Large-Scale Navigation (Grep, Search)
+          </div>
+          <div
+            class="tile"
+            style="
+              padding: 15px 35px;
+              border-left: 15px solid var(--accent-lime);
+            "
+          >
+            L4: ACTIVE - Vertical Workflows (Skills, MCP)
+          </div>
+          <div
+            class="tile"
+            style="
+              padding: 15px 35px;
+              border-left: 15px solid var(--accent-cyan);
+              background: rgba(6, 182, 212, 0.05);
+            "
+          >
+            L3: PASSIVE - Docs Layer (llms.txt, Headings)
+          </div>
+          <div
+            class="tile"
+            style="
+              padding: 15px 35px;
+              border-left: 15px solid var(--accent-lime);
+              background: rgba(132, 204, 22, 0.05);
+            "
+          >
+            L2: PASSIVE - Scoped Rules (.instructions.md)
+          </div>
+          <div
+            class="tile"
+            style="
+              padding: 15px 35px;
+              border-left: 15px solid var(--accent-cyan);
+              background: rgba(6, 182, 212, 0.1);
+            "
+          >
+            L1: PASSIVE - Foundation (<span class="ai-native-contrast"
+              >AGENTS.md</span
+            >)
+          </div>
+        </div>
+        <p
+          style="
+            margin-top: 50px;
+            text-align: center;
+            font-weight: 800;
+            color: var(--accent-lime);
+            font-size: 30px;
+          "
+        >
+          90% of architectural ROI is in Layers 1 and 2.
+        </p>
+      </div>
+    </div>
+
+    <!-- Slide 14: Passive Steering Workflow -->
+    <div class="slide-container" id="slide14">
+      <h2 class="slide-title">The Passive <span>Steering Flow</span></h2>
+      <div class="content-area">
+        <div
+          style="display: flex; gap: 50px; align-items: stretch; width: 100%"
+        >
+          <div
+            class="tile"
+            style="
+              flex: 1;
+              text-align: center;
+              border-color: var(--accent-cyan);
+            "
+          >
+            <p
+              style="
+                font-size: 16px;
+                margin-bottom: 15px;
+                color: var(--accent-cyan);
+              "
+            >
+              1. OPEN FILE
+            </p>
+            <p
+              style="
+                font-family: &quot;JetBrains Mono&quot;;
+                font-weight: 800;
+                font-size: 22px;
+              "
+            >
+              Button.tsx
+            </p>
+          </div>
+          <div
+            style="
+              align-self: center;
+              font-size: 40px;
+              color: var(--accent-cyan);
+            "
+          >
+            <i class="fa-solid fa-angle-right"></i>
+          </div>
+          <div
+            class="tile"
+            style="
+              flex: 1;
+              text-align: center;
+              border-color: var(--accent-lime);
+            "
+          >
+            <p
+              style="
+                font-size: 16px;
+                margin-bottom: 15px;
+                color: var(--accent-lime);
+              "
+            >
+              2. GLOB MATCH
+            </p>
+            <p
+              style="
+                font-family: &quot;JetBrains Mono&quot;;
+                font-weight: 800;
+                font-size: 22px;
+              "
+            >
+              **/*.tsx
+            </p>
+          </div>
+          <div
+            style="
+              align-self: center;
+              font-size: 40px;
+              color: var(--accent-lime);
+            "
+          >
+            <i class="fa-solid fa-angle-right"></i>
+          </div>
+          <div
+            class="tile"
+            style="
+              flex: 1;
+              text-align: center;
+              border-color: var(--accent-cyan);
+            "
+          >
+            <p
+              style="
+                font-size: 16px;
+                margin-bottom: 15px;
+                color: var(--accent-cyan);
+              "
+            >
+              3. INJECTION
+            </p>
+            <p style="font-size: 19px">
+              <span class="ai-native-contrast">AGENTS.md</span>
+            </p>
+          </div>
+          <div
+            style="
+              align-self: center;
+              font-size: 40px;
+              color: var(--accent-cyan);
+            "
+          >
+            <i class="fa-solid fa-angle-right"></i>
+          </div>
+          <div
+            class="tile"
+            style="
+              flex: 1;
+              text-align: center;
+              border-color: var(--accent-lime);
+            "
+          >
+            <p
+              style="
+                font-size: 16px;
+                margin-bottom: 15px;
+                color: var(--accent-lime);
+              "
+            >
+              4. ALIGNMENT
+            </p>
+            <p style="font-size: 19px">Pre-loaded rules</p>
+          </div>
+        </div>
+        <p
+          style="
+            margin-top: 80px;
+            font-size: 30px;
+            font-weight: 800;
+            text-align: center;
+          "
+        >
+          By the time the dev types, context is already live.
+        </p>
+      </div>
+    </div>
+
+    <!-- Slide 15: Maturity Model -->
+    <div class="slide-container" id="slide15">
+      <h2 class="slide-title">Readiness <span>Maturity Model</span></h2>
+      <div class="content-area">
+        <div
+          style="
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 20px;
+            height: 380px;
+          "
+        >
+          <div
+            class="tile"
+            style="
+              display: flex;
+              flex-direction: column;
+              justify-content: space-between;
+            "
+          >
+            <span
+              style="font-weight: 800; font-size: 16px; color: var(--text-dim)"
+              >LEVEL 1</span
+            >
+            <p style="font-size: 18px">Functional. Builds and tests run.</p>
+          </div>
+          <div
+            class="tile"
+            style="
+              display: flex;
+              flex-direction: column;
+              justify-content: space-between;
+              border-color: var(--accent-cyan);
+            "
+          >
+            <span
+              style="
+                font-weight: 800;
+                font-size: 16px;
+                color: var(--accent-cyan);
+              "
+              >LEVEL 2</span
+            >
+            <p style="font-size: 18px">
+              Documented.
+              <span class="ai-native-contrast">AGENTS.md</span> added.
+            </p>
+          </div>
+          <div
+            class="tile"
+            style="
+              display: flex;
+              flex-direction: column;
+              justify-content: space-between;
+              border-color: var(--accent-lime);
+            "
+          >
+            <span
+              style="
+                font-weight: 800;
+                font-size: 16px;
+                color: var(--accent-lime);
+              "
+              >LEVEL 3</span
+            >
+            <p style="font-size: 18px">Standardized. Scoped routing active.</p>
+          </div>
+          <div
+            class="tile"
+            style="
+              display: flex;
+              flex-direction: column;
+              justify-content: space-between;
+            "
+          >
+            <span
+              style="font-weight: 800; font-size: 16px; color: var(--text-dim)"
+              >LEVEL 4</span
+            >
+            <p style="font-size: 18px">Optimized. Skills & MCP live.</p>
+          </div>
+          <div
+            class="tile"
+            style="
+              display: flex;
+              flex-direction: column;
+              justify-content: space-between;
+            "
+          >
+            <span
+              style="font-weight: 800; font-size: 16px; color: var(--text-dim)"
+              >LEVEL 5</span
+            >
+            <p style="font-size: 18px">Autonomous. CI metrics validated.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 16: The 15-Minute Audit -->
+    <div class="slide-container" id="slide16">
+      <h2 class="slide-title">The <span>15-Minute Audit</span></h2>
+      <div class="content-area">
+        <div class="two-column">
+          <div class="tile">
+            <h3 style="color: var(--accent-lime); margin-bottom: 30px">
+              Phase 1: Foundation
+            </h3>
+            <ul style="list-style: none; padding: 0; font-size: 19px">
+              <li style="margin-bottom: 15px">
+                <i
+                  class="fa-regular fa-square-check"
+                  style="color: var(--accent-lime)"
+                ></i>
+                Create <span class="ai-native-contrast">AGENTS.md</span>
+              </li>
+              <li style="margin-bottom: 15px">
+                <i
+                  class="fa-regular fa-square-check"
+                  style="color: var(--accent-lime)"
+                ></i>
+                Add Run Commands
+              </li>
+              <li style="margin-bottom: 15px">
+                <i
+                  class="fa-regular fa-square-check"
+                  style="color: var(--accent-lime)"
+                ></i>
+                Set Global Instructions
+              </li>
+            </ul>
+          </div>
+          <div class="tile">
+            <h3 style="color: var(--accent-cyan); margin-bottom: 30px">
+              Phase 2: Scoping
+            </h3>
+            <ul style="list-style: none; padding: 0; font-size: 19px">
+              <li style="margin-bottom: 15px">
+                <i
+                  class="fa-regular fa-square-check"
+                  style="color: var(--accent-cyan)"
+                ></i>
+                Create Scoped dir
+              </li>
+              <li style="margin-bottom: 15px">
+                <i
+                  class="fa-regular fa-square-check"
+                  style="color: var(--accent-cyan)"
+                ></i>
+                Framework instruction files
+              </li>
+              <li style="margin-bottom: 15px">
+                <i
+                  class="fa-regular fa-square-check"
+                  style="color: var(--accent-cyan)"
+                ></i>
+                Define glob patterns
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div
+          style="
+            margin-top: 60px;
+            background: rgba(132, 204, 22, 0.1);
+            border: 2px solid var(--accent-lime);
+            padding: 40px;
+            border-radius: 16px;
+            text-align: center;
+          "
+        >
+          <p
+            style="
+              margin: 0;
+              font-size: 30px;
+              font-weight: 800;
+              color: var(--text-primary);
+            "
+          >
+            Audit: Ask the agent "How do I build?" and verify.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 17: Inside AGENTS.md -->
+    <div class="slide-container" id="slide17">
+      <h2 class="slide-title">Inside <span>AGENTS.md</span></h2>
+      <div class="content-area">
+        <div class="two-column">
+          <div style="display: flex; flex-direction: column; gap: 15px">
+            <div class="tile" style="padding: 15px 25px">
+              1. Project Overview & Stack
+            </div>
+            <div class="tile" style="padding: 15px 25px">
+              2. Setup & Execution Commands
+            </div>
+            <div class="tile" style="padding: 15px 25px">
+              3. Code Style & Conventions
+            </div>
+            <div class="tile" style="padding: 15px 25px">
+              4. Test & Validation Suite
+            </div>
+            <div class="tile" style="padding: 15px 25px">
+              5. Tribal Knowledge Pitfalls
+            </div>
+          </div>
+          <div
+            style="
+              display: flex;
+              flex-direction: column;
+              justify-content: center;
+            "
+          >
+            <div
+              style="
+                background: rgba(239, 68, 68, 0.1);
+                border: 5px solid var(--accent-red);
+                padding: 50px;
+                border-radius: 20px;
+                text-align: center;
+              "
+            >
+              <p
+                style="
+                  font-size: 38px;
+                  font-weight: 800;
+                  color: var(--accent-red);
+                  margin-bottom: 25px;
+                "
+              >
+                THE 8KB RULE
+              </p>
+              <p style="font-size: 22px">
+                8KB compressed index beats 40KB of documentation.
+                <br /><br /><strong>Concise > Comprehensive.</strong>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 18: Takeaways -->
+    <div class="slide-container" id="slide18">
+      <h2 class="slide-title">Action Plan: <span>Go AI-Native</span></h2>
+      <div class="content-area">
+        <div
+          style="
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+          "
+        >
+          <div class="tile" style="border-top: 8px solid var(--accent-lime)">
+            <h3 style="margin-bottom: 25px">🚀 TODAY</h3>
+            <p style="font-size: 17px">
+              Create <span class="ai-native-contrast">AGENTS.md</span>. Add
+              build commands.
+            </p>
+          </div>
+          <div class="tile" style="border-top: 8px solid var(--accent-cyan)">
+            <h3 style="margin-bottom: 25px">📅 THIS WEEK</h3>
+            <p style="font-size: 17px">
+              Scope framework rules. Route your monorepo.
+            </p>
+          </div>
+          <div class="tile" style="border-top: 8px solid var(--accent-lime)">
+            <h3 style="margin-bottom: 25px">📊 THIS MONTH</h3>
+            <p style="font-size: 17px">Track CI ROI. Set quarterly audits.</p>
+          </div>
+        </div>
+        <div style="margin-top: 80px; text-align: center">
+          <h1 style="font-size: 50px; color: var(--accent-lime)">
+            The Repo Is The Context.
+          </h1>
+          <p
+            style="
+              margin-top: 20px;
+              font-family: &quot;JetBrains Mono&quot;;
+              font-size: 20px;
+              color: var(--text-dim);
+            "
+          >
+            github.com/agents-md/spec
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let currentSlide = 1;
+      const slides = document.querySelectorAll(".slide-container");
+      const totalSlides = slides.length;
+      const counter = document.getElementById("slideCounter");
+
+      function updateSlide() {
+        slides.forEach((slide, index) => {
+          slide.classList.toggle("active", index === currentSlide - 1);
+        });
+        counter.innerText = `Slide ${currentSlide} / ${totalSlides}`;
+      }
+
+      function nextSlide() {
+        if (currentSlide < totalSlides) {
+          currentSlide++;
+          updateSlide();
+        }
+      }
+
+      function prevSlide() {
+        if (currentSlide > 1) {
+          currentSlide--;
+          updateSlide();
+          \
+
+          
+        }
+      }
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowRight" || e.key === " ") nextSlide();
+        if (e.key === "ArrowLeft") prevSlide();
+      });
+
+      updateSlide();
+    </script>
+  </body>
+</html>

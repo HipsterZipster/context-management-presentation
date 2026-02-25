@@ -1,0 +1,1637 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Context Engineering: Building AI-Native Repositories</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap");
+      :root {
+        --bg: #0d0d14;
+        --sf: #1a1a28;
+        --sf2: #1e2040;
+        --bd: #3a3a5c;
+        --tx: #f0f0fc;
+        --dm: #b0b0cc;
+        --ac: #818cf8;
+        --gn: #4ade80;
+        --rd: #f87171;
+        --yl: #fbbf24;
+        --cy: #22d3ee;
+        --mn: "JetBrains Mono", monospace;
+        --sn: "Inter", system-ui, sans-serif;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        background: var(--bg);
+        color: var(--tx);
+        font-family: var(--sn);
+        /* overflow: hidden; */
+      }
+      #progress {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 3px;
+        background: linear-gradient(90deg, var(--ac), var(--cy));
+        z-index: 1000;
+        transition: width 0.3s;
+      }
+      #counter {
+        position: fixed;
+        bottom: 24px;
+        right: 32px;
+        font-family: var(--mn);
+        font-size: 14px;
+        color: #a0a0c0;
+        z-index: 100;
+      }
+      #nav-hints {
+        position: fixed;
+        bottom: 24px;
+        left: 32px;
+        font-family: var(--mn);
+        font-size: 12px;
+        color: var(--dm);
+        z-index: 100;
+        opacity: 0.5;
+      }
+      .tm {
+        display: inline-block;
+        background: var(--sf2);
+        border: 1px solid var(--bd);
+        border-radius: 6px;
+        padding: 2px 10px;
+        font-family: var(--mn);
+        font-size: 13px;
+        color: var(--cy);
+        margin-left: 12px;
+      }
+      .sb {
+        background: linear-gradient(135deg, var(--ac), var(--cy));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-size: 13px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        margin-bottom: 8px;
+      }
+      .slide {
+        display: none;
+        width: 100%;
+        min-height: 100%;
+        padding: 60px 80px 80px;
+        position: absolute;
+        top: 0;
+        left: 0;
+        overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: var(--bd) transparent;
+        flex-direction: column;
+      }
+      .slide.active {
+        display: flex;
+        animation: fi 0.35s ease;
+      }
+      .slide:not(.active) svg {
+        display: none !important;
+      }
+      @keyframes fi {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .slide h1 {
+        font-size: 44px;
+        font-weight: 800;
+        letter-spacing: -1px;
+        line-height: 1.15;
+        margin-bottom: 10px;
+        color: #ffffff;
+      }
+      .slide h1 .hl {
+        background: linear-gradient(135deg, var(--ac), var(--cy));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      .st {
+        font-size: 18px;
+        color: #c8c8e8;
+        margin-bottom: 24px;
+        line-height: 1.5;
+        /* max-width: 800px; */
+      }
+      .dr {
+        display: flex;
+        gap: 24px;
+        justify-content: center;
+        margin: 12px 0;
+        flex: 1;
+        align-items: stretch;
+        flex-direction: row;
+      }
+      .dr.top-down {
+        flex-direction: column;
+      }
+      .dr.left-right {
+        flex-direction: row;
+      }
+      .dr.center {
+        align-items: center;
+      }
+      .db {
+        background: var(--sf);
+        border: 1px solid var(--bd);
+        border-radius: 12px;
+        padding: 20px;
+        min-width: 280px;
+        flex: 1;
+        overflow: auto;
+        max-height: 65vh;
+      }
+      .diagram-img {
+        width: 100%;
+        height: auto;
+        display: block;
+        margin: 0 auto;
+        max-height: 52vh;
+        object-fit: contain;
+      }
+      .db.f .diagram-img {
+        max-height: 58vh;
+      }
+      .db.f {
+        width: 100%;
+        max-width: 100%;
+      }
+      .db.c {
+        max-width: 560px;
+      }
+      pre.mermaid {
+        background: transparent !important;
+        border: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: visible;
+        text-align: center;
+        font-family: var(--sn);
+      }
+      pre.mermaid svg {
+        height: auto;
+        display: block;
+        margin: 0 auto;
+      }
+      .sn {
+        display: none;
+      }
+      #notes-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(4px);
+        z-index: 9000;
+        justify-content: center;
+        align-items: center;
+      }
+      #notes-overlay.open {
+        display: flex;
+      }
+      #notes-modal {
+        background: var(--sf);
+        border: 1px solid var(--bd);
+        border-radius: 16px;
+        padding: 32px 36px;
+        max-width: 700px;
+        width: 90%;
+        max-height: 70vh;
+        overflow-y: auto;
+        box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
+        scrollbar-width: thin;
+        scrollbar-color: var(--bd) transparent;
+        font-size: 16px;
+        line-height: 1.7;
+        color: #c0c0e0;
+      }
+      #notes-modal strong {
+        color: var(--tx);
+      }
+      #notes-modal em {
+        color: var(--cy);
+      }
+      #notes-modal-title {
+        font-family: var(--mn);
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--ac);
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin-bottom: 12px;
+      }
+      .kp {
+        background: linear-gradient(
+          135deg,
+          rgba(129, 140, 248, 0.15),
+          rgba(34, 211, 238, 0.1)
+        );
+        border: 1px solid rgba(129, 140, 248, 0.45);
+        border-radius: 10px;
+        padding: 12px 18px;
+        margin: 8px 0;
+        font-size: 15px;
+        line-height: 1.5;
+        color: #d8d8f0;
+      }
+      .kp .lb {
+        font-family: var(--mn);
+        font-size: 11px;
+        font-weight: 700;
+        color: #a5b4fc;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin-bottom: 4px;
+      }
+      .src {
+        display: inline-block;
+        font-family: var(--mn);
+        font-size: 11px;
+        color: var(--dm);
+        background: var(--sf2);
+        border: 1px solid var(--bd);
+        border-radius: 4px;
+        padding: 2px 8px;
+        margin: 2px 4px 2px 0;
+      }
+      .src a {
+        color: var(--cy);
+        text-decoration: none;
+      }
+      .src a:hover {
+        text-decoration: underline;
+      }
+      .g2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        flex: 1;
+      }
+      .g2.center {
+        align-items: center;
+      }
+      .g3 {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 14px;
+      }
+      .sc {
+        background: var(--sf);
+        border: 1px solid var(--bd);
+        border-radius: 10px;
+        padding: 18px;
+        text-align: center;
+      }
+      .sc .n {
+        font-size: 38px;
+        font-weight: 900;
+        background: linear-gradient(135deg, var(--ac), var(--cy));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      .sc .l {
+        font-size: 13px;
+        color: #b0b0d0;
+        margin-top: 4px;
+      }
+      .cl {
+        list-style: none;
+        padding: 0;
+      }
+      .cl li {
+        padding: 10px 0;
+        border-bottom: 1px solid var(--bd);
+        font-size: 15px;
+        line-height: 1.6;
+      }
+      .cl li:last-child {
+        border-bottom: none;
+      }
+      .cl a {
+        color: var(--cy);
+        text-decoration: none;
+        font-family: var(--mn);
+        font-size: 13px;
+        word-break: break-all;
+      }
+      .ct {
+        font-weight: 700;
+        color: var(--tx);
+      }
+      #tb {
+        position: fixed;
+        top: 16px;
+        right: 32px;
+        display: flex;
+        gap: 8px;
+        z-index: 200;
+      }
+      #tb button {
+        background: var(--sf2);
+        border: 1px solid var(--bd);
+        border-radius: 8px;
+        color: #c0c0e0;
+        font-family: var(--mn);
+        font-size: 12px;
+        padding: 6px 14px;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      #tb button:hover,
+      #tb button.on {
+        background: var(--ac);
+        color: #fff;
+        border-color: var(--ac);
+      }
+      .cmp-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+        color: var(--tx);
+      }
+      .cmp-table th {
+        text-align: left;
+        padding: 8px;
+        color: #c0c0e0;
+        border-bottom: 1px solid var(--bd);
+      }
+      .cmp-table td {
+        padding: 8px;
+        border-bottom: 1px solid var(--bd);
+      }
+      .cmp-table tr:last-child td {
+        border-bottom: none;
+      }
+      .bar {
+        height: 8px;
+        border-radius: 4px;
+        margin-bottom: 2px;
+      }
+      .bar-label {
+        font-size: 12px;
+        color: #b0b0d0;
+      }
+      @media (max-width: 900px) {
+        .slide {
+          padding: 32px 24px 60px;
+        }
+        .slide h1 {
+          font-size: 28px;
+        }
+        .g2 {
+          grid-template-columns: 1fr;
+        }
+        .db {
+          min-width: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="progress"></div>
+    <div id="counter"></div>
+    <div id="nav-hints">← → navigate | N notes | Esc close | F fullscreen</div>
+    <div id="tb">
+      <button id="bn" onclick="toggleNotes()">Notes</button
+      ><button onclick="toggleFullscreen()">Fullscreen</button>
+    </div>
+    <div id="deck">
+      <section class="slide active" data-slide="1">
+        <div class="sb">Opening</div>
+        <h1>
+          "Your Repo Is <span class="hl">Fighting</span> Your AI Agents"<span
+            class="tm"
+            >2 min</span
+          >
+        </h1>
+        <p class="st">
+          70% of AI coding tasks fail — not because models are bad, but because
+          <strong>context</strong> is wrong.
+        </p>
+        <div class="g3" style="margin-bottom: 14px">
+          <div class="sc">
+            <div class="n">53%</div>
+            <div class="l">Baseline task success</div>
+          </div>
+          <div class="sc">
+            <div class="n">100%</div>
+            <div class="l">AI-native repo success</div>
+          </div>
+          <div class="sc">
+            <div class="n">1 afternoon</div>
+            <div class="l">Time to transform</div>
+          </div>
+        </div>
+        <div class="dr">
+          <div class="db f">
+            <img
+              src="images/1.svg"
+              alt="Legacy vs AI-Native Repository diagram"
+              class="diagram-img"
+            />
+          </div>
+        </div>
+        <div class="src">
+          <a
+            href="https://vercel.com/blog/agents-md-outperforms-skills-in-our-agent-evals"
+            target="_blank"
+            >Vercel Blog, Jan 2026</a
+          >
+        </div>
+        <div class="sn">
+          <strong>Speaking Notes:</strong> "70% of AI coding tasks still fail in
+          real-world repos — not because the models are bad, but because the
+          <em>context</em> is wrong. Vercel proved it: baseline repos achieve
+          53% task success. AI-native repos hit 100%. Today I'll show you the
+          exact engineering blueprint to get there. You can implement it this
+          afternoon."
+        </div>
+      </section>
+
+      <section class="slide" data-slide="2">
+        <div class="sb">The Problem</div>
+        <h1>
+          Parametric vs. <span class="hl">Grounded</span> Knowledge<span
+            class="tm"
+            >3 min</span
+          >
+        </h1>
+        <p class="st">
+          Every AI agent reconciles two knowledge sources via its attention
+          budget. When grounded context is missing, parametric knowledge fills
+          the gap — <strong>confidently wrong</strong>.
+        </p>
+        <div class="dr">
+          <div class="db f">
+            <img
+              src="images/2.svg"
+              alt="Parametric vs Grounded Knowledge diagram"
+              class="diagram-img"
+            />
+          </div>
+        </div>
+        <div class="kp">
+          <div class="lb">Key Insight</div>
+          Vercel found agents skip framework docs
+          <strong>44% of the time</strong> because they think they already know
+          the answer.
+        </div>
+        <div class="src">
+          <a
+            href="https://vercel.com/blog/agents-md-outperforms-skills-in-our-agent-evals"
+            target="_blank"
+            >Vercel Blog</a
+          >
+        </div>
+        <div class="src">
+          <a href="https://arxiv.org/abs/2602.11988" target="_blank"
+            >arXiv 2602.11988</a
+          >
+        </div>
+        <div class="sn">
+          <strong>Speaking Notes:</strong> "Every AI agent has two knowledge
+          sources. <em>Parametric</em> — what it learned in training.
+          <em>Grounded</em> — what's in your repo right now. The problem?
+          Parametric knowledge is stale and generic. Your private APIs, your
+          naming conventions, your monorepo structure — none of that is in the
+          training data. When agents can't find grounded context, they guess.
+          And they guess <em>confidently</em>. Vercel found agents skip
+          framework docs 44% of the time because they think they already know
+          the answer."
+        </div>
+      </section>
+
+      <section class="slide" data-slide="3">
+        <div class="sb">The Problem</div>
+        <h1>
+          The <span class="hl">Silent Killer</span><span class="tm">2 min</span>
+        </h1>
+        <p class="st">
+          Even million-token windows have a ticking time bomb. Agents silently
+          auto-compact — your conventions are the first things discarded.
+        </p>
+        <div class="dr center">
+          <div class="db f">
+            <img
+              src="images/3.svg"
+              alt="Context Window zones diagram"
+              class="diagram-img"
+            />
+          </div>
+        </div>
+        <div class="kp">
+          <div class="lb">Why This Matters</div>
+          The code compiles. Tests might pass. But it silently violates your
+          architecture. This is why we need <strong>structured context</strong>,
+          not just throwing everything into the window.
+        </div>
+        <div class="sn">
+          <strong>Speaking Notes:</strong> "Even with million-token context
+          windows, there's a ticking time bomb: <em>context rot</em>. As the
+          window fills, agents silently auto-compact. Your project conventions —
+          the first things discarded. The agent doesn't tell you. The code
+          compiles. Tests might pass. But it violates your architecture. This is
+          why we need <em>structured</em> context, not just throwing everything
+          into the window."
+        </div>
+      </section>
+
+      <section class="slide" data-slide="4">
+        <div class="sb">Core Concepts</div>
+        <h1>
+          Two Models of <span class="hl">Context Delivery</span
+          ><span class="tm">3 min</span>
+        </h1>
+        <p class="st">
+          Passive steering (push) vs. Active retrieval (pull). Passive wins
+          reliability. Active wins scale.
+        </p>
+        <div class="dr center">
+          <div class="db f">
+            <img
+              src="images/4.svg"
+              alt="Passive Steering vs Active Retrieval diagram"
+              class="diagram-img"
+            />
+          </div>
+        </div>
+        <div class="kp">
+          <div class="lb">Vercel's Key Insight</div>
+          <strong>Passive eliminates the Decision Gap.</strong> The agent can't
+          skip what's already in its prompt.
+        </div>
+        <div class="src">
+          <a
+            href="https://vercel.com/blog/agents-md-outperforms-skills-in-our-agent-evals"
+            target="_blank"
+            >Vercel Blog</a
+          >
+        </div>
+        <div class="sn">
+          <strong>Speaking Notes:</strong> "There are exactly two ways to get
+          context to an agent. <em>Passive</em> — you push it. It's always in
+          the prompt. The agent never decides whether to look for it.
+          <em>Active</em> — the agent pulls it on demand by searching your
+          codebase. Both have trade-offs. Passive wins reliability. Active wins
+          scale. The key insight from Vercel:
+          <strong>passive eliminates the Decision Gap</strong>. The agent can't
+          skip what's already in its prompt."
+        </div>
+      </section>
+
+      <section class="slide" data-slide="5">
+        <div class="sb">Core Concepts</div>
+        <h1>
+          <span class="hl">Why Passive Wins</span><span class="tm">2 min</span>
+        </h1>
+        <p class="st">
+          When agents decide whether to search, they skip docs 44% of the time.
+          Passive context removes the decision entirely.
+        </p>
+        <div class="g2">
+          <div class="db">
+            <img
+              src="images/5a.svg"
+              alt="Active Only vs Passive+Active path diagram"
+              class="diagram-img"
+            />
+          </div>
+          <div class="db">
+            <img
+              src="images/5b.svg"
+              alt="Vercel Agent Eval Results bar chart"
+              class="diagram-img"
+            />
+          </div>
+        </div>
+        <div class="kp">
+          <div class="lb">Critical Result</div>
+          A compressed <strong>8KB AGENTS.md</strong> achieved
+          <strong>100% success rate</strong> — beating 40KB of full docs via
+          Skills (53%).
+        </div>
+        <div class="src">
+          <a
+            href="https://vercel.com/blog/agents-md-outperforms-skills-in-our-agent-evals"
+            target="_blank"
+            >Vercel Blog, Jan 2026</a
+          >
+        </div>
+        <div class="sn">
+          <strong>Speaking Notes:</strong> "This is the most important slide.
+          Vercel tested teaching agents Next.js 16 APIs — knowledge
+          <em>absent</em> from training data. Skills alone? 53% — same as
+          baseline, because agents only invoked them 56% of the time. Even with
+          explicit prompting: 79%. But a compressed 8KB AGENTS.md passive index?
+          <strong>100% success rate.</strong> The passive file removed the
+          decision point entirely."
+        </div>
+      </section>
+
+      <section class="slide" data-slide="6">
+        <div class="sb">Architecture</div>
+        <h1>
+          The Five Pillars of <span class="hl">AI-Native Repos</span
+          ><span class="tm">3 min</span>
+        </h1>
+        <p class="st">
+          Unified Knowledge → Scoped Precision → Monorepo Mastery → AI-Readable
+          Docs → Living Maintenance
+        </p>
+        <div class="dr top-down">
+          <div class="db">
+            <img
+              src="images/6a.svg"
+              alt="Five Pillars of AI-Native Repos diagram"
+              class="diagram-img"
+            />
+          </div>
+          <div class="db">
+            <img
+              src="images/6b.svg"
+              alt="Repository tree structure diagram"
+              class="diagram-img"
+            />
+          </div>
+        </div>
+        <div class="src">
+          <a href="https://agents.md/" target="_blank">AGENTS.md Spec</a>
+        </div>
+        <div class="src">
+          <a
+            href="https://docs.github.com/copilot/customizing-copilot/adding-custom-instructions-for-github-copilot"
+            target="_blank"
+            >GitHub Copilot Docs</a
+          >
+        </div>
+        <div class="sn">
+          <strong>Speaking Notes:</strong> "Five pillars.
+          <strong>Unified Knowledge</strong> — one AGENTS.md at root, one
+          copilot-instructions.md. <strong>Scoped Precision</strong> —
+          glob-matched instruction files so React rules only apply to .tsx
+          files. <strong>Monorepo Mastery</strong> — nested AGENTS.md with
+          nearest-file precedence. <strong>AI-Readable Docs</strong> —
+          structured README headings. <strong>Living Maintenance</strong> —
+          audit scripts that verify your context files are still accurate. This
+          tree is what your repo should look like when you're done."
+        </div>
+      </section>
+
+      <section class="slide" data-slide="7">
+        <div class="sb">Architecture</div>
+        <h1>
+          Anthropic's <span class="hl">Progressive Disclosure</span
+          ><span class="tm">2 min</span>
+        </h1>
+        <p class="st">
+          Three-level loading: YAML frontmatter → SKILL.md body → Linked
+          resources. Hundreds of skills, minimal token overhead.
+        </p>
+        <div class="dr center">
+          <div class="db f">
+            <img
+              src="images/7.svg"
+              alt="Progressive Disclosure three-level loading diagram"
+              class="diagram-img"
+            />
+          </div>
+        </div>
+        <div class="src">
+          <a
+            href="https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices"
+            target="_blank"
+            >Anthropic Skills Guide</a
+          >
+        </div>
+        <div class="sn">
+          <strong>Speaking Notes:</strong> "Anthropic's Skills framework is the
+          gold standard for progressive disclosure. Level 1 — just the YAML
+          frontmatter, about 100 tokens — is <em>always</em> in the system
+          prompt. It tells Claude <em>when</em> to activate the skill. Level 2 —
+          the full SKILL.md body — loads only when there's a match. Level 3 —
+          reference files and scripts — load only on demand. You can have
+          hundreds of skills installed with minimal token overhead. This is how
+          you scale expertise without bloating context."
+        </div>
+      </section>
+
+      <section class="slide" data-slide="8">
+        <div class="sb">Architecture</div>
+        <h1>The MCP + Skills Architecture<span class="tm">1 min</span></h1>
+        <p class="st">
+          MCP provides capabilities (the kitchen). Skills provide workflows (the
+          recipes). Together: reliable, scalable AI development.
+        </p>
+        <div class="dr center">
+          <div class="db f">
+            <img
+              src="images/8.svg"
+              alt="MCP + Skills Architecture diagram"
+              class="diagram-img"
+            />
+          </div>
+        </div>
+        <div class="kp">
+          <div class="lb">The Pattern</div>
+          Without skills, users connect an MCP and ask <em>"now what?"</em> With
+          skills, workflows activate automatically.
+        </div>
+        <div class="src">
+          <a
+            href="https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices"
+            target="_blank"
+            >Anthropic Skills Guide</a
+          >
+        </div>
+        <div class="sn">
+          <strong>Speaking Notes:</strong> "Anthropic uses the kitchen analogy.
+          MCP gives you the kitchen — tools, ingredients, equipment. Skills give
+          you the recipes — <em>how</em> to use those tools effectively. Without
+          skills, users connect an MCP and ask 'now what?' With skills,
+          workflows activate automatically. This is the architecture for scaling
+          AI-powered workflows."
+        </div>
+      </section>
+
+      <section class="slide" data-slide="9">
+        <div class="sb">Architecture</div>
+        <h1>
+          <span class="hl">Two Architectures</span><span class="tm">2 min</span>
+        </h1>
+        <p class="st">
+          IDE plugin (sub-second, surgical) vs. autonomous cloud agent (full VM,
+          large-scale). Complementary, not competing.
+        </p>
+        <div class="g2 center">
+          <div class="db">
+            <img
+              src="images/9.svg"
+              alt="GitHub Copilot vs Devin architecture diagram"
+              class="diagram-img"
+            />
+          </div>
+          <div class="db">
+            <table class="cmp-table">
+              <tr>
+                <th>Dimension</th>
+                <th style="color: #818cf8">Copilot</th>
+                <th style="color: var(--cy)">Devin</th>
+              </tr>
+              <tr>
+                <td>Autonomy</td>
+                <td>
+                  <div
+                    class="bar"
+                    style="
+                      background: linear-gradient(
+                        90deg,
+                        #818cf8 40%,
+                        transparent 40%
+                      );
+                    "
+                  ></div>
+                  <span class="bar-label">40</span>
+                </td>
+                <td>
+                  <div
+                    class="bar"
+                    style="
+                      background: linear-gradient(
+                        90deg,
+                        var(--cy) 95%,
+                        transparent 95%
+                      );
+                    "
+                  ></div>
+                  <span class="bar-label">95</span>
+                </td>
+              </tr>
+              <tr>
+                <td>Setup Speed</td>
+                <td>
+                  <div
+                    class="bar"
+                    style="
+                      background: linear-gradient(
+                        90deg,
+                        #818cf8 95%,
+                        transparent 95%
+                      );
+                    "
+                  ></div>
+                  <span class="bar-label">95</span>
+                </td>
+                <td>
+                  <div
+                    class="bar"
+                    style="
+                      background: linear-gradient(
+                        90deg,
+                        var(--cy) 60%,
+                        transparent 60%
+                      );
+                    "
+                  ></div>
+                  <span class="bar-label">60</span>
+                </td>
+              </tr>
+              <tr>
+                <td>Context Precision</td>
+                <td>
+                  <div
+                    class="bar"
+                    style="
+                      background: linear-gradient(
+                        90deg,
+                        #818cf8 90%,
+                        transparent 90%
+                      );
+                    "
+                  ></div>
+                  <span class="bar-label">90</span>
+                </td>
+                <td>
+                  <div
+                    class="bar"
+                    style="
+                      background: linear-gradient(
+                        90deg,
+                        var(--cy) 85%,
+                        transparent 85%
+                      );
+                    "
+                  ></div>
+                  <span class="bar-label">85</span>
+                </td>
+              </tr>
+              <tr>
+                <td>Large Refactors</td>
+                <td>
+                  <div
+                    class="bar"
+                    style="
+                      background: linear-gradient(
+                        90deg,
+                        #818cf8 50%,
+                        transparent 50%
+                      );
+                    "
+                  ></div>
+                  <span class="bar-label">50</span>
+                </td>
+                <td>
+                  <div
+                    class="bar"
+                    style="
+                      background: linear-gradient(
+                        90deg,
+                        var(--cy) 95%,
+                        transparent 95%
+                      );
+                    "
+                  ></div>
+                  <span class="bar-label">95</span>
+                </td>
+              </tr>
+              <tr>
+                <td>Latency</td>
+                <td>
+                  <div
+                    class="bar"
+                    style="
+                      background: linear-gradient(
+                        90deg,
+                        #818cf8 95%,
+                        transparent 95%
+                      );
+                    "
+                  ></div>
+                  <span class="bar-label">95</span>
+                </td>
+                <td>
+                  <div
+                    class="bar"
+                    style="
+                      background: linear-gradient(
+                        90deg,
+                        var(--cy) 40%,
+                        transparent 40%
+                      );
+                    "
+                  ></div>
+                  <span class="bar-label">40</span>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+        <div class="src">
+          <a
+            href="https://docs.github.com/copilot/customizing-copilot/adding-custom-instructions-for-github-copilot"
+            target="_blank"
+            >GitHub Copilot Docs</a
+          >
+        </div>
+        <div class="src">
+          <a href="https://agents.md/" target="_blank">AGENTS.md Spec</a>
+        </div>
+        <div class="sn">
+          <strong>Speaking Notes:</strong> "Two leading tools, two opposite
+          philosophies. Copilot is the <em>silent partner</em> — low latency,
+          surgically precise, lives in your IDE. Devin is the
+          <em>autonomous engineer</em> — give it a task, it spins up a VM,
+          indexes your entire codebase, and works independently. They're
+          complementary. Use Copilot for real-time flow. Use Devin for
+          large-scale refactors. Both read AGENTS.md. Both benefit from the five
+          pillars."
+        </div>
+      </section>
+
+      <section class="slide" data-slide="10">
+        <div class="sb">Evidence</div>
+        <h1>
+          The Academic <span class="hl">Reality Check</span
+          ><span class="tm">2 min</span>
+        </h1>
+        <p class="st">
+          Vercel shows dramatic gains. ETH Zürich finds marginal effects. The
+          reconciliation reveals when context files actually help.
+        </p>
+        <div class="g2">
+          <div class="db">
+            <img
+              src="images/10a.svg"
+              alt="Vercel vs ETH Zürich research reconciliation"
+              class="diagram-img"
+            />
+          </div>
+          <div class="db">
+            <img
+              src="images/10b.svg"
+              alt="Key ETH Zürich findings"
+              class="diagram-img"
+            />
+          </div>
+        </div>
+        <div class="kp">
+          <div class="lb">Practical Takeaway</div>
+          Don't auto-generate AGENTS.md with an LLM — those are redundant.
+          <strong>Write it yourself.</strong> Encode your
+          <em>tribal knowledge</em>.
+        </div>
+        <div class="src">
+          <a
+            href="https://vercel.com/blog/agents-md-outperforms-skills-in-our-agent-evals"
+            target="_blank"
+            >Vercel Blog</a
+          >
+        </div>
+        <div class="src">
+          <a href="https://arxiv.org/abs/2602.11988" target="_blank"
+            >arXiv 2602.11988</a
+          >
+        </div>
+        <div class="sn">
+          <strong>Speaking Notes:</strong> "Let's be honest about the research.
+          Vercel showed dramatic gains — 53% to 100%. But ETH Zürich's rigorous
+          academic study found marginal effects. How do we reconcile this?
+          <strong
+            >Context matters most when knowledge is absent from
+            training.</strong
+          >
+          Vercel tested <em>new</em> APIs. ETH tested tasks where info already
+          existed. The practical takeaway: don't auto-generate AGENTS.md with an
+          LLM — those are redundant. Write it yourself. Encode your
+          <em>tribal knowledge</em>: the stuff that's not in any documentation."
+        </div>
+      </section>
+
+      <section class="slide" data-slide="11">
+        <div class="sb">Architecture</div>
+        <h1>
+          <span class="hl">Nearest-File Precedence</span
+          ><span class="tm">1 min</span>
+        </h1>
+        <p class="st">
+          The root AGENTS.md routes. Each package overrides. Zero context
+          leakage between domains.
+        </p>
+        <div class="dr">
+          <div class="db f">
+            <img
+              src="images/11.svg"
+              alt="Nearest-file precedence diagram"
+              class="diagram-img"
+            />
+          </div>
+        </div>
+        <div class="kp">
+          <div class="lb">Design Principle</div>
+          When editing
+          <code
+            style="
+              font-family: var(--mn);
+              background: var(--bg);
+              padding: 1px 6px;
+              border-radius: 4px;
+            "
+            >packages/frontend/src/Button.tsx</code
+          >, the agent reads <strong>frontend/AGENTS.md</strong> first, then
+          falls back to root. It <strong>never</strong> loads backend or shared
+          rules.
+        </div>
+        <div class="src">
+          <a href="https://agents.md/" target="_blank">AGENTS.md Spec</a>
+        </div>
+        <div class="src">
+          <a
+            href="https://github.blog/ai-and-ml/github-copilot/how-to-write-a-great-agents-md-lessons-from-over-2500-repositories/"
+            target="_blank"
+            >GitHub Blog</a
+          >
+        </div>
+        <div class="sn">
+          <strong>Speaking Notes:</strong> "In monorepos, nearest-file
+          precedence is everything. The root AGENTS.md acts as a router. Each
+          package has its own. When an agent edits
+          `packages/frontend/src/Button.tsx`, it reads
+          `packages/frontend/AGENTS.md` first, then falls back to root. It
+          <em>never</em> loads backend or shared rules. Zero context leakage.
+          This is how you prevent the agent from applying Express conventions to
+          your React components."
+        </div>
+      </section>
+
+      <section class="slide" data-slide="12">
+        <div class="sb">Architecture</div>
+        <h1>
+          The Hybrid <span class="hl">Strategy Stack</span
+          ><span class="tm">1 min</span>
+        </h1>
+        <p class="st">
+          Five layers from foundation (passive, always-present) to large-scale
+          active navigation. Build from the bottom up.
+        </p>
+        <div class="dr center">
+          <div class="db f">
+            <img
+              src="images/12.svg"
+              alt="Hybrid strategy stack diagram"
+              class="diagram-img"
+            />
+          </div>
+        </div>
+        <div class="kp">
+          <div class="lb">ROI Curve</div>
+          Most teams only need the first two layers —
+          <strong>Foundation + Scoped Rules</strong> — to see massive
+          improvements.
+        </div>
+        <div class="sn">
+          <strong>Speaking Notes:</strong> "Here's the stack. Foundation is
+          passive — always present. Scoped rules are passive — loaded per file
+          type. Documentation is passive — discoverable. Then active layers:
+          Skills and MCP for complex workflows, and search tools for navigating
+          massive codebases. Build from the bottom up. Most teams only need the
+          first two layers to see massive improvements."
+        </div>
+      </section>
+
+      <section class="slide" data-slide="13">
+        <div class="sb">Implementation</div>
+        <h1>
+          The Passive Steering <span class="hl">Workflow</span
+          ><span class="tm">1 min</span>
+        </h1>
+        <p class="st">
+          From file open → glob match → context merge → deterministic output. No
+          searching. No guessing.
+        </p>
+        <div class="dr">
+          <div class="db f">
+            <img
+              src="images/13.svg"
+              alt="Passive steering workflow sequence diagram"
+              class="diagram-img"
+            />
+          </div>
+        </div>
+        <div class="sn">
+          <strong>Speaking Notes:</strong> "Here's the flow in practice.
+          Developer opens a TSX file. The context engine silently matches globs,
+          loads the nearest AGENTS.md, merges copilot-instructions.md and the
+          scoped React rules. By the time the developer types a request, the
+          agent already has every convention in its prompt. No searching. No
+          guessing. Deterministic output."
+        </div>
+      </section>
+
+      <section class="slide" data-slide="14">
+        <div class="sb">Implementation</div>
+        <h1>
+          Repository Readiness <span class="hl">Maturity Model</span
+          ><span class="tm">1 min</span>
+        </h1>
+        <p class="st">
+          Five levels from "it builds" to "fully autonomous." Most teams are at
+          Level 1. Getting to Level 3 takes an afternoon.
+        </p>
+        <div class="dr center">
+          <div class="db f">
+            <img
+              src="images/14.svg"
+              alt="Repository readiness maturity model"
+              class="diagram-img"
+            />
+          </div>
+        </div>
+        <div class="g3" style="margin-top: 14px">
+          <div class="sc">
+            <div class="n" style="font-size: 28px">L1 → L2</div>
+            <div class="l">15 minutes</div>
+          </div>
+          <div class="sc">
+            <div class="n" style="font-size: 28px">L2 → L3</div>
+            <div class="l">One afternoon</div>
+          </div>
+          <div class="sc">
+            <div class="n" style="font-size: 28px">L3+</div>
+            <div class="l">Biggest ROI zone</div>
+          </div>
+        </div>
+        <div class="sn">
+          <strong>Speaking Notes:</strong> "Where is your repo today? Level 1 —
+          it builds and tests run. Level 2 — you've added AGENTS.md. Level 3 —
+          scoped instructions and monorepo routing. Level 4 — Skills and MCP
+          integrations. Level 5 — living maintenance with measured metrics. Most
+          teams are at Level 1. Getting to Level 2 takes 15 minutes. Getting to
+          Level 3 takes an afternoon. That's where the biggest ROI is."
+        </div>
+      </section>
+
+      <section class="slide" data-slide="15">
+        <div class="sb">Action</div>
+        <h1>
+          The <span class="hl">15-Minute Audit</span
+          ><span class="tm">2 min</span>
+        </h1>
+        <p class="st">
+          Four phases. Foundation → Scoped Rules → Documentation → Verify.
+          Commit everything.
+        </p>
+        <div class="dr center">
+          <div class="db f">
+            <img
+              src="images/15.svg"
+              alt="15-minute audit diagram"
+              class="diagram-img"
+            />
+          </div>
+        </div>
+        <div class="sn">
+          <strong>Speaking Notes:</strong> "Here's your action plan. Four
+          phases, 15 minutes total. Phase 1: create AGENTS.md with your
+          commands. Phase 2: scope framework rules with glob patterns. Phase 3:
+          structure documentation. Phase 4: verify by actually asking your agent
+          questions and confirming correctness. Commit everything. You're done.
+          Your repo is now AI-native."
+        </div>
+      </section>
+
+      <section class="slide" data-slide="16">
+        <div class="sb">Action</div>
+        <h1>
+          What Goes in <span class="hl">AGENTS.md</span
+          ><span class="tm">1 min</span>
+        </h1>
+        <p class="st">
+          Five sections. Keep under 2 pages. Concise &gt; Comprehensive. 8KB
+          beat 40KB in Vercel's eval.
+        </p>
+        <div class="dr center">
+          <div class="db f">
+            <img
+              src="images/16.svg"
+              alt="What goes in AGENTS.md diagram"
+              class="diagram-img"
+            />
+          </div>
+        </div>
+        <div class="kp">
+          <div class="lb">Critical Rule</div>
+          An 8KB compressed index beat 40KB of full docs. Encode your
+          <strong>tribal knowledge</strong> — the non-obvious conventions, the
+          things that burn people.
+        </div>
+        <div class="src">
+          <a href="https://agents.md/" target="_blank">AGENTS.md Spec</a>
+        </div>
+        <div class="src">
+          <a
+            href="https://github.blog/ai-and-ml/github-copilot/how-to-write-a-great-agents-md-lessons-from-over-2500-repositories/"
+            target="_blank"
+            >GitHub Blog</a
+          >
+        </div>
+        <div class="sn">
+          <strong>Speaking Notes:</strong> "What goes in AGENTS.md? Five
+          sections. Project overview — one sentence. Setup commands — in
+          execution order. Code style — your non-obvious conventions. Testing
+          requirements. And common pitfalls — the things that burn people.
+          Critical rule: keep it under 2 pages. Concise beats comprehensive. An
+          8KB compressed index beat 40KB of full docs in Vercel's eval."
+        </div>
+      </section>
+
+      <section class="slide" data-slide="17">
+        <div class="sb">Synthesis</div>
+        <h1>
+          The Complete <span class="hl">Context Architecture</span
+          ><span class="tm">1 min</span>
+        </h1>
+        <p class="st">
+          Three layers → one agent → deterministic, framework-aligned,
+          convention-compliant code.
+        </p>
+        <div class="dr center">
+          <div class="db f">
+            <img
+              src="images/17.svg"
+              alt="Complete context architecture diagram"
+              class="diagram-img"
+            />
+          </div>
+        </div>
+        <div class="sn">
+          <strong>Speaking Notes:</strong> "Here's the complete architecture.
+          Three layers feeding into the agent. Passive context — always in the
+          prompt, zero decision points. Active retrieval — on-demand tools for
+          scale. Skills — Anthropic's progressive disclosure for complex
+          workflows. Together, they produce deterministic, framework-aligned,
+          convention-compliant code. This is context engineering."
+        </div>
+      </section>
+
+      <section class="slide" data-slide="18">
+        <div class="sb">Call to Action</div>
+        <h1>Key Takeaways & Call to Action<span class="tm">2 min</span></h1>
+        <p class="st">Three time horizons. Today → This Week → This Month.</p>
+        <div class="dr center">
+          <div class="db f">
+            <img
+              src="images/18a.svg"
+              alt="Today, This Week, This Month action plan"
+              class="diagram-img"
+            />
+          </div>
+        </div>
+        <div class="g3" style="margin: 14px 0">
+          <div class="kp" style="border-color: var(--gn)">
+            <div class="lb" style="color: var(--gn)">Today — 15 min</div>
+            Create AGENTS.md, copilot-instructions.md, run the audit
+          </div>
+          <div class="kp" style="border-color: var(--yl)">
+            <div class="lb" style="color: var(--yl)">This Week</div>
+            Scope framework rules, add monorepo routing, measure before/after
+          </div>
+          <div class="kp" style="border-color: var(--cy)">
+            <div class="lb" style="color: var(--cy)">This Month</div>
+            Explore Skills/MCP, quarterly audits, track CI pass rates
+          </div>
+        </div>
+        <div class="sn">
+          <strong>Speaking Notes:</strong> "Three time horizons.
+          <strong>Today</strong> — 15 minutes — create AGENTS.md, add
+          copilot-instructions.md, run the audit. <strong>This week</strong> —
+          scope your framework rules, add monorepo routing, measure the
+          before/after. <strong>This month</strong> — explore Skills and MCP,
+          set up quarterly audits, start tracking CI pass rates. The difference
+          is night and day. Once the repo is shaped correctly, AI agents stop
+          guessing and start delivering."
+        </div>
+      </section>
+
+      <section class="slide" data-slide="19">
+        <div class="sb">Appendix A</div>
+        <h1>Appendix A: Key Metrics <span class="hl">Summary</span></h1>
+        <p class="st">
+          Where agent failures originate — context blindness dominates at 44%.
+        </p>
+        <div class="dr center">
+          <div class="db c">
+            <img
+              src="images/18b.svg"
+              alt="Where agent failures come from pie chart"
+              class="diagram-img"
+            />
+          </div>
+          <div style="flex: 1; min-width: 260px">
+            <div class="sc" style="margin-bottom: 10px">
+              <div class="n">44%</div>
+              <div class="l">
+                Context Blindness — no grounded context provided
+              </div>
+            </div>
+            <div class="sc" style="margin-bottom: 10px">
+              <div class="n">23%</div>
+              <div class="l">Decision Gap — agent didn't search for docs</div>
+            </div>
+            <div class="sc" style="margin-bottom: 10px">
+              <div class="n">18%</div>
+              <div class="l">Context Rot — window overflow discards rules</div>
+            </div>
+            <div class="sc">
+              <div class="n">15%</div>
+              <div class="l">Hallucination — parametric knowledge error</div>
+            </div>
+          </div>
+        </div>
+        <div class="sn">
+          The majority of agent failures (67%) stem from context-related issues
+          that passive steering directly addresses: context blindness and the
+          decision gap.
+        </div>
+      </section>
+
+      <section class="slide" data-slide="20">
+        <div class="sb">Appendix B</div>
+        <h1>
+          Appendix B: Context File Impact <span class="hl">by Scenario</span>
+        </h1>
+        <p class="st">
+          When context files help most: high project specificity + knowledge
+          absent from training data.
+        </p>
+        <div class="dr">
+          <div class="db f">
+            <img
+              src="images/18c.svg"
+              alt="Context file impact by scenario quadrant chart"
+              class="diagram-img"
+            />
+          </div>
+        </div>
+        <div class="kp">
+          <div class="lb">Interpretation</div>
+          Top-right quadrant = <strong>maximum AGENTS.md impact</strong>.
+          Bottom-left = minimal value. This explains the Vercel vs ETH Zürich
+          discrepancy.
+        </div>
+        <div class="src">
+          <a
+            href="https://vercel.com/blog/agents-md-outperforms-skills-in-our-agent-evals"
+            target="_blank"
+            >Vercel Blog</a
+          >
+        </div>
+        <div class="src">
+          <a href="https://arxiv.org/abs/2602.11988" target="_blank"
+            >arXiv 2602.11988</a
+          >
+        </div>
+        <div class="sn">
+          The quadrant chart reconciles the Vercel and ETH Zürich results.
+          Vercel tested in the top-right quadrant (new APIs, high specificity).
+          ETH tested mostly in the lower-left.
+        </div>
+      </section>
+
+      <!-- <section class="slide" data-slide="21">
+        <div class="sb">Appendix C</div>
+        <h1>Appendix C: Full Presentation <span class="hl">Timeline</span></h1>
+        <p class="st">
+          20 minutes across 5 sections: Opening, Core Concepts, Architecture,
+          Evidence &amp; Action, Closing.
+        </p>
+        <div class="dr center">
+          <div class="db f">
+            <img
+              src="images/18d.svg"
+              alt="Full presentation timeline gantt chart"
+              class="diagram-img"
+            />
+          </div>
+        </div>
+        <div class="sn">
+          The timeline is structured for a 20-minute slot with natural
+          transitions between the five major sections.
+        </div>
+      </section> -->
+
+      <section class="slide" data-slide="22">
+        <div class="sb">References</div>
+        <h1><span class="hl">Key Citations</span> & Sources</h1>
+        <p class="st">
+          Primary research, specifications, and documentation referenced
+          throughout this talk.
+        </p>
+        <ul class="cl" style="flex: 1; overflow-y: auto">
+          <li>
+            <span class="ct">[1] Vercel Blog</span> —
+            <em>AGENTS.md outperforms skills in our agent evals</em> (Jan 27,
+            2026)<br /><a
+              href="https://vercel.com/blog/agents-md-outperforms-skills-in-our-agent-evals"
+              target="_blank"
+              >vercel.com/blog/agents-md-outperforms-skills-in-our-agent-evals</a
+            >
+          </li>
+          <li>
+            <span class="ct">[2] arXiv 2602.11988</span> —
+            <em
+              >Evaluating AGENTS.md: Are Repository-Level Context Files Helpful
+              for Coding Agents?</em
+            >
+            (ETH Zürich)<br /><a
+              href="https://arxiv.org/abs/2602.11988"
+              target="_blank"
+              >arxiv.org/abs/2602.11988</a
+            >
+          </li>
+          <li>
+            <span class="ct">[3] AGENTS.md Specification</span> — Official
+            specification for repository-level agent instruction files<br /><a
+              href="https://agents.md/"
+              target="_blank"
+              >agents.md</a
+            >
+          </li>
+          <li>
+            <span class="ct">[4] GitHub Docs</span> —
+            <em>Adding custom instructions for GitHub Copilot</em><br /><a
+              href="https://docs.github.com/copilot/customizing-copilot/adding-custom-instructions-for-github-copilot"
+              target="_blank"
+              >docs.github.com/.../adding-custom-instructions-for-github-copilot</a
+            >
+          </li>
+          <li>
+            <span class="ct">[5] Anthropic</span> —
+            <em>The Complete Guide to Building Skills for Claude</em><br /><a
+              href="https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices"
+              target="_blank"
+              >platform.claude.com/.../agent-skills/best-practices</a
+            >
+          </li>
+          <li>
+            <span class="ct">[6] GitHub Blog</span> —
+            <em
+              >How to write a great agents.md — Lessons from over 2,500
+              repositories</em
+            ><br /><a
+              href="https://github.blog/ai-and-ml/github-copilot/how-to-write-a-great-agents-md-lessons-from-over-2500-repositories/"
+              target="_blank"
+              >github.blog/.../how-to-write-a-great-agents-md...</a
+            >
+          </li>
+          <li>
+            <span class="ct">[7] Structured README Headings</span> —
+            Machine-readable documentation via structured headings for AI
+            navigation<br /><a
+              href="https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax"
+              target="_blank"
+              >docs.github.com/writing-and-formatting</a
+            >
+          </li>
+        </ul>
+        <div class="sn">
+          All citations are clickable. The two most critical papers are the
+          Vercel blog post (industry) and the ETH Zürich arXiv paper (academic).
+        </div>
+      </section>
+    </div>
+    <div id="notes-overlay">
+      <div id="notes-modal">
+        <div id="notes-modal-title">Speaker Notes</div>
+        <div id="notes-modal-body"></div>
+      </div>
+    </div>
+    <script>
+      let cur = 0;
+      const sls = document.querySelectorAll(".slide"),
+        tot = sls.length;
+      let nv = true;
+      function go(n, skipHash) {
+        sls[cur].classList.remove("active");
+        cur = ((n % tot) + tot) % tot;
+        sls[cur].classList.add("active");
+        document.getElementById("progress").style.width =
+          ((cur + 1) / tot) * 100 + "%";
+        document.getElementById("counter").textContent =
+          String(cur + 1).padStart(2, "0") +
+          " / " +
+          String(tot).padStart(2, "0");
+        if (!skipHash) history.replaceState(null, "", "#" + (cur + 1));
+      }
+      function goToHash() {
+        const n = parseInt(window.location.hash.slice(1));
+        if (n >= 1 && n <= tot) go(n - 1, true);
+      }
+      window.addEventListener("hashchange", goToHash);
+      function toggleNotes() {
+        const overlay = document.getElementById("notes-overlay");
+        const isOpen = overlay.classList.contains("open");
+        if (isOpen) {
+          overlay.classList.remove("open");
+          document.getElementById("bn").classList.remove("on");
+        } else {
+          const noteEl = sls[cur].querySelector(".sn");
+          document.getElementById("notes-modal-body").innerHTML = noteEl
+            ? noteEl.innerHTML
+            : "<em>No notes for this slide.</em>";
+          overlay.classList.add("open");
+          document.getElementById("bn").classList.add("on");
+        }
+      }
+      document
+        .getElementById("notes-overlay")
+        .addEventListener("click", function (e) {
+          if (e.target === this) {
+            this.classList.remove("open");
+            document.getElementById("bn").classList.remove("on");
+          }
+        });
+      function toggleFullscreen() {
+        document.fullscreenElement
+          ? document.exitFullscreen()
+          : document.documentElement.requestFullscreen();
+      }
+      window.toggleNotes = toggleNotes;
+      window.toggleFullscreen = toggleFullscreen;
+      document.addEventListener("keydown", (e) => {
+        switch (e.key) {
+          case "ArrowRight":
+          case " ":
+          case "PageDown":
+            e.preventDefault();
+            go(cur + 1);
+            break;
+          case "ArrowLeft":
+          case "PageUp":
+            e.preventDefault();
+            go(cur - 1);
+            break;
+          case "Home":
+            e.preventDefault();
+            go(0);
+            break;
+          case "End":
+            e.preventDefault();
+            go(tot - 1);
+            break;
+          case "Escape":
+            e.preventDefault();
+            document.getElementById("notes-overlay").classList.remove("open");
+            document.getElementById("bn").classList.remove("on");
+            break;
+          case "n":
+          case "N":
+            toggleNotes();
+            break;
+          case "f":
+          case "F":
+            toggleFullscreen();
+            break;
+        }
+      });
+      let tx = 0;
+      document.addEventListener("touchstart", (e) => {
+        tx = e.changedTouches[0].screenX;
+      });
+      document.addEventListener("touchend", (e) => {
+        const d = e.changedTouches[0].screenX - tx;
+        if (Math.abs(d) > 50) {
+          d > 0 ? go(cur - 1) : go(cur + 1);
+        }
+      });
+      document.getElementById("bn").textContent = "Notes";
+      (function () {
+        const _startSlide = parseInt(window.location.hash.slice(1));
+        go(_startSlide >= 1 && _startSlide <= tot ? _startSlide - 1 : 0, true);
+        if (!window.location.hash) history.replaceState(null, "", "#1");
+      })();
+    </script>
+  </body>
+</html>

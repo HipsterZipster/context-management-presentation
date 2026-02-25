@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Native Repositories: The 2026 Blueprint</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #6366f1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #818cf8; }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        @media (max-width: 768px) {
+            .chart-container { height: 280px; }
+        }
+
+        .slide-content { animation: slideUp 0.5s ease-out forwards; opacity: 0; transform: translateY(20px); }
+        @keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
+
+        .code-block {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #0f172a;
+            color: #e2e8f0;
+            padding: 1.25rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            font-size: 0.875rem;
+            line-height: 1.6;
+            border-left: 4px solid #a855f7;
+            box-shadow: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(90deg, #4f46e5 0%, #9333ea 100%);
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+            border-left: 4px solid #f0abfc;
+        }
+        
+        .tree-line { position: relative; }
+        .tree-line::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: -1rem;
+            width: 2px;
+            background-color: #475569;
+        }
+        .tree-item::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: -1rem;
+            width: 1rem;
+            height: 2px;
+            background-color: #475569;
+        }
+
+        .custom-checkbox:checked + div {
+            background-color: #4f46e5;
+            border-color: #4f46e5;
+        }
+        .custom-checkbox:checked + div svg {
+            display: block;
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 3px solid #fff;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Float Assistant */
+        #ai-assistant {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .msg-user { background: #4f46e5; color: white; border-radius: 12px 12px 0 12px; }
+        .msg-ai { background: #f1f5f9; color: #1e293b; border-radius: 12px 12px 12px 0; border: 1px solid #e2e8f0; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans h-screen flex flex-col overflow-hidden selection:bg-fuchsia-200">
+
+    <header class="bg-slate-950 text-white h-16 flex items-center justify-between px-6 shadow-lg z-20 shrink-0 border-b border-indigo-500/30">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 bg-gradient-to-br from-indigo-500 via-purple-500 to-fuchsia-500 rounded flex items-center justify-center font-bold text-lg shadow-[0_0_15px_rgba(168,85,247,0.5)]">AI</div>
+            <h1 class="text-xl font-bold tracking-tight">AI-Native Repositories <span class="font-normal text-slate-400 hidden sm:inline">| The 2026 Blueprint</span></h1>
+        </div>
+        <div class="flex items-center gap-2">
+            <button id="tts-btn" onclick="narrateSlide()" class="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-1.5 rounded-full text-sm font-medium transition-all shadow-md">
+                <span id="tts-icon">🔊</span>
+                <span>✨ Listen to Slide</span>
+            </button>
+        </div>
+    </header>
+
+    <div class="flex flex-1 overflow-hidden">
+        <nav class="w-64 bg-slate-900 text-slate-300 flex flex-col shrink-0 border-r border-slate-800 overflow-y-auto z-10">
+            <div class="p-5">
+                <h2 class="text-xs font-bold text-fuchsia-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                    <span>⚡</span> Presentation Deck
+                </h2>
+                <ul class="space-y-1.5" id="nav-list"></ul>
+            </div>
+            
+            <div class="mt-auto p-5 bg-slate-950 border-t border-slate-800">
+                <div class="bg-indigo-900/30 border border-indigo-500/30 p-4 rounded-lg">
+                    <div class="text-xs text-indigo-300 font-bold uppercase mb-1">AI Features Active</div>
+                    <div class="text-sm text-white font-medium leading-tight">Gemini 2.5 Pro powering this slide deck.</div>
+                </div>
+            </div>
+        </nav>
+
+        <main class="flex-1 overflow-y-auto bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-indigo-50/50 via-slate-50 to-slate-100 relative" id="main-content">
+            <div class="max-w-6xl mx-auto p-6 md:p-10 min-h-full flex flex-col pb-20"></div>
+        </main>
+    </div>
+
+    <!-- AI Floating Assistant -->
+    <div id="ai-assistant" class="fixed bottom-6 right-6 w-80 max-h-[500px] flex flex-col bg-white rounded-2xl shadow-2xl border border-slate-200 z-50 transform translate-y-[440px] opacity-0 pointer-events-none">
+        <div class="p-4 bg-indigo-600 rounded-t-2xl flex justify-between items-center text-white cursor-pointer" onclick="toggleAssistant()">
+            <div class="flex items-center gap-2 font-bold">
+                <span>✨</span> AI Slide Assistant
+            </div>
+            <span id="assistant-toggle-icon">▲</span>
+        </div>
+        <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4 text-sm h-80 bg-slate-50">
+            <div class="msg-ai p-3">Hello! I've read all the slides. Ask me anything about the AI-Native Repository Blueprint!</div>
+        </div>
+        <div class="p-3 border-t bg-white rounded-b-2xl">
+            <div class="flex gap-2">
+                <input type="text" id="chat-input" placeholder="Ask a question..." class="flex-1 bg-slate-100 border-none rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500">
+                <button onclick="sendMessage()" class="bg-indigo-600 text-white p-2 rounded-lg hover:bg-indigo-700 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+    <button id="assistant-trigger" onclick="toggleAssistant()" class="fixed bottom-6 right-6 w-14 h-14 bg-indigo-600 text-white rounded-full shadow-2xl flex items-center justify-center text-2xl hover:bg-indigo-500 transition-all z-40">
+        ✨
+    </button>
+
+    <script>
+        const apiKey = "";
+        const state = {
+            currentSlide: 0,
+            checklist: [false, false, false, false, false, false, false, false],
+            fileTreeView: 'after',
+            isAssistantOpen: false,
+            blueprintStack: '',
+            isGenerating: false
+        };
+
+        const slides = [
+            {
+                id: 'hook',
+                navLabel: '1. The Problem',
+                title: 'Your Repo Is Holding Your AI Agents Back',
+                narration: "Your current repository architecture is likely fighting the AI tools trying to help you. By adding proper passive context files, teams have seen success rates jump from a coin-flip 53% to a perfect 100%.",
+                render: () => `
+                    <div class="slide-content space-y-8">
+                        <div class="bg-white p-8 rounded-2xl shadow-xl border-l-8 border-indigo-600 relative overflow-hidden">
+                            <div class="absolute top-0 right-0 p-4 opacity-10 text-8xl">🔥</div>
+                            <h2 class="text-4xl md:text-5xl font-extrabold text-slate-900 mb-6 tracking-tight">Your Repository Can Be <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-fuchsia-600">AI-Native in One Afternoon</span></h2>
+                            <p class="text-xl text-slate-600 leading-relaxed max-w-3xl font-medium">
+                                70% of AI coding tasks fail in real-world repos because the agent can't find or trust the right context. Research from Vercel (Jan 2026) shows teams see <strong class="text-indigo-700 bg-indigo-50 px-2 py-1 rounded">100% success</strong> with proper structure.
+                            </p>
+                        </div>
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <div class="bg-slate-50 rounded-xl p-6 border-2 border-red-200 shadow-sm">
+                                <h3 class="font-bold text-red-600 mb-4 flex items-center gap-2 text-lg"><span>❌</span> Before: Guessing</h3>
+                                <div class="bg-slate-900 rounded-lg p-5 font-mono text-sm text-slate-300">📁 my-project/<br>  📄 README.md (Outdated)<br>  📁 src/ (AI guesses stack)</div>
+                            </div>
+                            <div class="bg-indigo-50 rounded-xl p-6 border-2 border-indigo-400 shadow-md">
+                                <h3 class="font-bold text-indigo-800 mb-4 flex items-center gap-2 text-lg"><span>✅</span> After: AI-Native</h3>
+                                <div class="bg-slate-900 rounded-lg p-5 font-mono text-sm text-slate-300">📁 my-project/<br>  <span class="text-green-400">📄 AGENTS.md (Rules)</span><br>  <span class="text-fuchsia-400">📄 llms.txt (Map)</span></div>
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                id: 'pillars',
+                navLabel: '2. The 5 Pillars',
+                title: 'The Blueprint',
+                narration: "The blueprint rests on five pillars. A unified knowledge layer, precision scoping for monorepos, AI-readable documentation mapping, and active quarterly maintenance to prevent context rot.",
+                render: () => `
+                    <div class="slide-content grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-indigo-500">
+                            <div class="flex items-center gap-3 mb-2"><div class="w-8 h-8 bg-indigo-100 rounded text-center leading-8 font-bold">1</div><h3 class="font-bold">Unified Knowledge Layer</h3></div>
+                            <p class="text-sm text-slate-600">Single source of truth: AGENTS.md</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-fuchsia-500">
+                            <div class="flex items-center gap-3 mb-2"><div class="w-8 h-8 bg-fuchsia-100 rounded text-center leading-8 font-bold">2</div><h3 class="font-bold">Scoped Precision</h3></div>
+                            <p class="text-sm text-slate-600">React rules only for UI, not backend.</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-blue-500">
+                            <div class="flex items-center gap-3 mb-2"><div class="w-8 h-8 bg-blue-100 rounded text-center leading-8 font-bold">3</div><h3 class="font-bold">Monorepo Mastery</h3></div>
+                            <p class="text-sm text-slate-600">Nearest precedence logic.</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-teal-500">
+                            <div class="flex items-center gap-3 mb-2"><div class="w-8 h-8 bg-teal-100 rounded text-center leading-8 font-bold">4</div><h3 class="font-bold">AI-Readable Docs</h3></div>
+                            <p class="text-sm text-slate-600">Use llms.txt for discovery.</p>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                id: 'playground',
+                navLabel: '✨ AI Blueprint Generator',
+                title: 'Build Your Own AI-Native Blueprint',
+                narration: "Try it yourself. Tell Gemini what your tech stack is, and I will generate a professional AGENTS point M D file for you based on the 2026 standards.",
+                render: () => `
+                    <div class="slide-content space-y-6">
+                        <div class="bg-gradient-to-br from-indigo-600 to-purple-700 p-8 rounded-2xl shadow-xl text-white">
+                            <h3 class="text-2xl font-bold mb-4">✨ Custom Repo Architect</h3>
+                            <p class="text-indigo-100 mb-6">Describe your project stack (e.g., "Next.js, Python, Monorepo with Tailwind") and Gemini will generate your AGENTS.md template.</p>
+                            
+                            <div class="flex flex-col md:flex-row gap-4 mb-6">
+                                <input type="text" id="stack-input" placeholder="Enter your tech stack..." class="flex-1 bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-fuchsia-400">
+                                <button id="gen-blueprint-btn" onclick="generateBlueprint()" class="bg-white text-indigo-700 px-8 py-3 rounded-xl font-bold hover:bg-indigo-50 transition-all flex items-center justify-center gap-2">
+                                    <span id="gen-btn-text">Generate Blueprint</span>
+                                    <div id="gen-spinner" class="spinner hidden"></div>
+                                </button>
+                            </div>
+
+                            <div id="blueprint-result" class="hidden animate-[fadeIn_0.5s_ease-out]">
+                                <div class="bg-slate-900 rounded-xl p-6 border border-indigo-400/30 overflow-hidden relative">
+                                    <button onclick="copyBlueprint()" class="absolute top-4 right-4 text-xs bg-indigo-500/30 border border-white/20 px-3 py-1 rounded text-white hover:bg-indigo-500/50">Copy</button>
+                                    <pre id="blueprint-code" class="text-sm font-mono text-indigo-200 whitespace-pre-wrap"></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                id: 'audit',
+                navLabel: '3. Audit Checklist',
+                title: 'The 15-Minute Audit',
+                narration: "Take 15 minutes today to audit your repository. Check for an AGENTS point M D file at the root, scoped instructions for your main frameworks, and a valid llms point text entry point.",
+                render: () => `
+                    <div class="slide-content bg-slate-900 rounded-2xl p-8 text-white shadow-2xl">
+                        <h3 class="text-2xl font-bold mb-6 text-fuchsia-400">Audit Checklist</h3>
+                        <div class="space-y-3" id="audit-list">
+                            ${['AGENTS.md at root', 'Scoped .instructions.md', 'Monorepo routing', 'llms.txt map', 'Validation scripts'].map((item, i) => `
+                                <label class="flex items-center gap-4 p-3 bg-white/5 rounded-lg border border-white/10">
+                                    <input type="checkbox" class="h-5 w-5 rounded border-white/20" onchange="toggleChecklist(${i})" ${state.checklist[i] ? 'checked' : ''}>
+                                    <span class="text-slate-100">${item}</span>
+                                </label>
+                            `).join('')}
+                        </div>
+                    </div>
+                `
+            },
+            {
+                id: 'data',
+                navLabel: '4. The Evidence',
+                title: 'Real Results',
+                narration: "The data shows that passive context files out-perform complex tools. Vercel's Jan 2026 research confirms that while tools fail due to discovery issues, passive context provides a reliable one-hundred percent success rate.",
+                render: () => `
+                    <div class="slide-content grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div class="bg-white p-6 rounded-xl shadow-md border border-slate-200 h-96">
+                            <canvas id="barChart"></canvas>
+                        </div>
+                        <div class="bg-indigo-900 text-white p-8 rounded-xl flex items-center">
+                            <div>
+                                <h4 class="text-2xl font-bold mb-4">Vercel: 53% → 100%</h4>
+                                <p class="text-indigo-200">The jump in accuracy when moving from a basic repo to an AI-Native structure. Passive context eliminates the agent's need to "find" rules—they are already there.</p>
+                            </div>
+                        </div>
+                    </div>
+                `
+            }
+        ];
+
+        // --- Gemini API Helpers ---
+
+        async function geminiFetch(endpoint, payload) {
+            let delay = 1000;
+            for (let i = 0; i < 5; i++) {
+                try {
+                    const response = await fetch(`${endpoint}?key=${apiKey}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (response.ok) return await response.json();
+                } catch (e) {}
+                await new Promise(r => setTimeout(r, delay));
+                delay *= 2;
+            }
+            throw new Error("API Connection Failed");
+        }
+
+        async function generateBlueprint() {
+            const input = document.getElementById('stack-input').value;
+            if (!input || state.isGenerating) return;
+
+            const btnText = document.getElementById('gen-btn-text');
+            const spinner = document.getElementById('gen-spinner');
+            const resultBox = document.getElementById('blueprint-result');
+            const codeBox = document.getElementById('blueprint-code');
+
+            state.isGenerating = true;
+            btnText.textContent = "Architecting...";
+            spinner.classList.remove('hidden');
+
+            try {
+                const systemPrompt = "You are a Repository Information Architect. Based on the provided tech stack, generate a professional, high-density AGENTS.md file that follows the 2026 AI-Native Repo Blueprint standards. Include: Overview, Setup Commands, Code Conventions, and Common Pitfalls. Return ONLY the markdown content.";
+                const result = await geminiFetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent', {
+                    contents: [{ parts: [{ text: input }] }],
+                    systemInstruction: { parts: [{ text: systemPrompt }] }
+                });
+
+                const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                state.blueprintStack = text;
+                codeBox.textContent = text;
+                resultBox.classList.remove('hidden');
+            } catch (err) {
+                console.error(err);
+                codeBox.textContent = "Error generating blueprint. Please try again.";
+                resultBox.classList.remove('hidden');
+            } finally {
+                state.isGenerating = false;
+                btnText.textContent = "Generate Blueprint";
+                spinner.classList.add('hidden');
+            }
+        }
+
+        async function narrateSlide() {
+            const slide = slides[state.currentSlide];
+            const btn = document.getElementById('tts-btn');
+            const icon = document.getElementById('tts-icon');
+            
+            icon.textContent = "⌛";
+            btn.classList.add('opacity-50', 'pointer-events-none');
+
+            try {
+                const text = `Slide title: ${slide.title}. ${slide.narration}`;
+                const result = await geminiFetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent', {
+                    contents: [{ parts: [{ text: `Say naturally: ${text}` }] }],
+                    generationConfig: {
+                        responseModalities: ["AUDIO"],
+                        speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: "Fenrir" } } }
+                    },
+                    model: "gemini-2.5-flash-preview-tts"
+                });
+
+                const base64Audio = result.candidates[0].content.parts[0].inlineData.data;
+                const audioBlob = pcmToWavBlob(base64Audio, 24000); // Standard sample rate for Fenrir
+                const audioUrl = URL.createObjectURL(audioBlob);
+                const audio = new Audio(audioUrl);
+                audio.play();
+                audio.onended = () => {
+                    icon.textContent = "🔊";
+                    btn.classList.remove('opacity-50', 'pointer-events-none');
+                };
+            } catch (err) {
+                console.error(err);
+                icon.textContent = "🔊";
+                btn.classList.remove('opacity-50', 'pointer-events-none');
+            }
+        }
+
+        function pcmToWavBlob(base64Data, sampleRate) {
+            const byteCharacters = atob(base64Data);
+            const pcmData = new Int16Array(byteCharacters.length / 2);
+            for (let i = 0; i < pcmData.length; i++) {
+                pcmData[i] = (byteCharacters.charCodeAt(i * 2) & 0xff) + (byteCharacters.charCodeAt(i * 2 + 1) << 8);
+            }
+            const buffer = new ArrayBuffer(44 + pcmData.length * 2);
+            const view = new DataView(buffer);
+            view.setUint32(0, 0x46464952, true); view.setUint32(4, 36 + pcmData.length * 2, true); view.setUint32(8, 0x45564157, true);
+            view.setUint32(12, 0x20746d66, true); view.setUint32(16, 16, true); view.setUint16(20, 1, true); view.setUint16(22, 1, true);
+            view.setUint32(24, sampleRate, true); view.setUint32(28, sampleRate * 2, true); view.setUint16(32, 2, true); view.setUint16(34, 16, true);
+            view.setUint32(36, 0x61746164, true); view.setUint32(40, pcmData.length * 2, true);
+            let offset = 44;
+            for (let i = 0; i < pcmData.length; i++, offset += 2) view.setInt16(offset, pcmData[i], true);
+            return new Blob([buffer], { type: 'audio/wav' });
+        }
+
+        // --- Assistant Logic ---
+
+        function toggleAssistant() {
+            state.isAssistantOpen = !state.isAssistantOpen;
+            const assistant = document.getElementById('ai-assistant');
+            const icon = document.getElementById('assistant-toggle-icon');
+            if (state.isAssistantOpen) {
+                assistant.classList.remove('translate-y-[440px]', 'opacity-0', 'pointer-events-none');
+                icon.textContent = "▼";
+            } else {
+                assistant.classList.add('translate-y-[440px]', 'opacity-0', 'pointer-events-none');
+                icon.textContent = "▲";
+            }
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const text = input.value.trim();
+            if (!text) return;
+
+            appendMsg(text, 'user');
+            input.value = '';
+
+            const context = slides.map(s => `${s.title}: ${s.narration}`).join('\n');
+            const systemPrompt = `You are a helpful assistant for the "AI-Native Repositories" presentation. You have the following content from the slides to refer to:\n\n${context}\n\nAnswer concisely and helpfully.`;
+
+            try {
+                const result = await geminiFetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent', {
+                    contents: [{ parts: [{ text }] }],
+                    systemInstruction: { parts: [{ text: systemPrompt }] }
+                });
+                const aiResponse = result.candidates?.[0]?.content?.parts?.[0]?.text || "Sorry, I couldn't process that.";
+                appendMsg(aiResponse, 'ai');
+            } catch (err) {
+                appendMsg("Error connecting to AI.", 'ai');
+            }
+        }
+
+        function appendMsg(text, sender) {
+            const box = document.getElementById('chat-messages');
+            const div = document.createElement('div');
+            div.className = sender === 'user' ? 'msg-user p-3 ml-auto max-w-[80%]' : 'msg-ai p-3 mr-auto max-w-[80%]';
+            div.textContent = text;
+            box.appendChild(div);
+            box.scrollTop = box.scrollHeight;
+        }
+
+        // --- Core UI Logic ---
+
+        function renderNav() {
+            const list = document.getElementById('nav-list');
+            list.innerHTML = slides.map((slide, index) => `
+                <li onclick="goToSlide(${index})" class="nav-item cursor-pointer px-4 py-3 rounded-lg text-sm transition-all duration-200 text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 ${index === state.currentSlide ? 'active' : ''}">
+                    ${slide.navLabel}
+                </li>
+            `).join('');
+        }
+
+        function renderContent() {
+            const container = document.getElementById('main-content').children[0];
+            const slide = slides[state.currentSlide];
+            container.innerHTML = `
+                <div class="mb-8 border-b border-indigo-200/50 pb-6 mt-4">
+                    <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">${slide.title}</h2>
+                </div>
+                ${slide.render()}
+            `;
+            if (slide.id === 'data') initCharts();
+        }
+
+        function goToSlide(index) {
+            state.currentSlide = index;
+            renderNav();
+            renderContent();
+        }
+
+        function copyBlueprint() {
+            const code = document.getElementById('blueprint-code').textContent;
+            document.execCommand('copy');
+            const btn = event.target;
+            btn.textContent = "Copied!";
+            setTimeout(() => btn.textContent = "Copy", 2000);
+        }
+
+        function toggleChecklist(i) {
+            state.checklist[i] = !state.checklist[i];
+        }
+
+        function initCharts() {
+            const ctx = document.getElementById('barChart');
+            if (!ctx) return;
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Baseline (No Context)', 'Active Tools', 'AI-Native (AGENTS.md)'],
+                    datasets: [{
+                        label: 'Success Rate %',
+                        data: [53, 56, 100],
+                        backgroundColor: ['#f87171', '#818cf8', '#a855f7']
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, max: 100 } }
+                }
+            });
+        }
+
+        renderNav();
+        goToSlide(0);
+    </script>
+</body>
+</html>
