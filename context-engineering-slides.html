@@ -417,7 +417,6 @@
           background: var(--bg) !important;
           -webkit-print-color-adjust: exact !important;
           print-color-adjust: exact !important;
-          color-adjust: exact !important;
         }
         #progress,
         #counter,
@@ -547,18 +546,6 @@
             >GitHub Copilot Docs</a
           >
         </div>
-        <div class="sn">
-          <strong>Speaking Notes:</strong> "Four files — that's all you need to
-          get started. <strong>AGENTS.md</strong> at your repo root — every
-          major AI agent reads it: Copilot, Devin, Cursor, Windsurf. It's your
-          project's instruction manual for AI.
-          <strong>copilot-instructions.md</strong> — GitHub Copilot specifically
-          looks for this; it's always injected into the system prompt.
-          <strong>Scoped instruction files</strong> — glob-matched rules so your
-          React conventions only apply to .tsx files. And
-          <strong>Skills and Prompts</strong> — reusable workflows and
-          team-shared prompt templates. Let me show you what goes in each one."
-        </div>
       </section>
 
       <section class="slide" data-slide="3">
@@ -664,17 +651,7 @@
           <strong>Prompts</strong> — team-shared templates.
           <strong>Skills</strong> — reusable agent workflows.
         </div>
-        <div class="sn">
-          <strong>Speaking Notes:</strong> "Here's what this looks like in a
-          real repo. This is 'acme-webapp' — a typical monorepo. At the root:
-          AGENTS.md with your project overview and commands. In .github:
-          copilot-instructions.md for global standards, scoped instruction files
-          for React and Python, and pre-made prompts your whole team can share —
-          like 'new-api-endpoint' that gives the agent a consistent starting
-          template. In .windsurf: reusable skills for code review and database
-          migrations. Each package has its own AGENTS.md for domain-specific
-          rules."
-        </div>
+        <div class="sn"></div>
       </section>
 
       <!-- ============ PART 2: THE WHY (5 min) ============ -->
@@ -872,11 +849,18 @@
           Where is your repo today? Most teams are at Level 1. Getting to Level
           3 takes an afternoon.
         </p>
-        <div class="dr center">
+        <div class="g2" style="margin-bottom: 14px">
           <div class="db f">
             <img
               src="images/10a.svg"
               alt="Repository readiness maturity model"
+              class="diagram-img"
+            />
+          </div>
+          <div class="db f">
+            <img
+              src="images/10b.svg"
+              alt="Call to action: Today, This Week, This Month"
               class="diagram-img"
             />
           </div>

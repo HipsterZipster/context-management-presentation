@@ -31,7 +31,11 @@ graph LR
 ```
 
 > **Speaking Notes:**
-> "How many of you use Copilot or another AI coding agent daily? And how often does it get things _wrong_ — compiles fine, but violates your conventions? Vercel measured this: baseline repos get 53% task success. Repos with a few simple files hit 100%. Today I'll show you exactly which files to add, what to put in them, and you can do it this afternoon. Let's start with the practical steps."
+> "How many of you use Copilot or another AI coding agent daily? And how often does it get things _wrong_ — compiles fine, but violates your conventions?
+>
+> Look at the diagram. On the left — a legacy repository. README.md written for humans, your source code, package.json. That's what 70% of repos look like today. On the right — an AI-native repository. Three files added: AGENTS.md at the root, copilot-instructions.md for global standards, and scoped instruction files for framework-specific rules. Same source code, same project — just a few files that tell the agent how your team actually works.
+>
+> Vercel measured this: legacy repos get 53% task success. Add those files and you hit 100%. The transformation takes one afternoon. Today I'll show you exactly which files to add, what to put in them, and you can do it before your next standup."
 
 ---
 
@@ -51,7 +55,17 @@ graph LR
 ```
 
 > **Speaking Notes:**
-> "Four files — that's all you need to get started. **AGENTS.md** at your repo root — every major AI agent reads it: Copilot, Devin, Cursor, Windsurf. It's your project's instruction manual for AI. **copilot-instructions.md** — GitHub Copilot specifically looks for this; it's always injected into the system prompt. **Scoped instruction files** — glob-matched rules so your React conventions only apply to .tsx files. And **Skills and Prompts** — reusable workflows and team-shared prompt templates. Let me show you what goes in each one."
+> "Four files — that's the toolkit. Let me walk through each one.
+>
+> First, **AGENTS.md** — this lives at your repo root. It's the single most impactful file you can add. Every major AI coding agent reads it: GitHub Copilot, Devin, Cursor, Windsurf. Think of it as your project's instruction manual for AI — setup commands, conventions, pitfalls. Vercel proved this one file alone took task success from 53% to 100%.
+>
+> Second, **copilot-instructions.md** — this lives at `.github/copilot-instructions.md`. GitHub Copilot specifically looks for this file and always injects it into the system prompt. Use it for global coding standards that apply everywhere: naming conventions, import ordering, error handling patterns.
+>
+> Third, **scoped instruction files** — these are `.instructions.md` files inside `.github/instructions/`. Each one has an `applyTo` glob pattern. So you can have `react.instructions.md` with `applyTo: '**/*.tsx'` for React conventions, and `python.instructions.md` with `applyTo: '**/*.py'` for Python rules. The agent only loads the rules relevant to the file you're editing.
+>
+> Fourth, **Skills and Prompts** — these live in `.github/skills/` and `.github/prompts/`. Skills are multi-step workflows the agent can execute — like 'run a code review' or 'scaffold a new API endpoint.' Prompts are team-shared templates so everyone asks the agent the same way. These are your reusable building blocks.
+>
+> Together, these four files give the agent everything it needs. Let me show you what goes inside each one."
 
 ---
 
@@ -80,7 +94,13 @@ graph TB
 ```
 
 > **Speaking Notes:**
-> "What goes in AGENTS.md? Five sections. Project overview — one sentence. Setup commands — in execution order. Code style — your non-obvious conventions. Testing requirements. And common pitfalls — the things that burn people. Critical rule: keep it under 2 pages. Vercel proved that an 8KB compressed index beat 40KB of full docs. Concise beats comprehensive every time."
+> "What goes in AGENTS.md? The diagram breaks it into two groups.
+>
+> **Core sections** — the essentials. First, a one-sentence project overview with your tech stack. Second, setup and run commands — install, dev, build, test, lint — in execution order so the agent can actually run your project. Third, code style and conventions — things like 'TypeScript strict mode, functional React components only.'
+>
+> **Quality and risk sections** — these save you from the subtle bugs. Testing and validation — 'run the full suite before any PR.' And common pitfalls — 'never use the deprecated X API, always use Y instead.'
+>
+> The rule at the top matters most: keep it under two pages. Vercel proved that a compressed 8KB index beat 40KB of full documentation. Why? Because concise context stays in the attention window. Verbose context gets compressed away. Encode your _tribal knowledge_ — the non-obvious stuff that burns people — and leave out anything the agent already knows from training data."
 
 ---
 
@@ -132,7 +152,15 @@ graph LR
 ```
 
 > **Speaking Notes:**
-> "Here's your action plan — you can do this during lunch. Four phases, 15 minutes total. Phase 1: create AGENTS.md with your commands. Phase 2: scope framework rules with glob patterns. Phase 3: structure your documentation. Phase 4: verify by actually _asking_ your agent questions and confirming the output is correct. Commit everything. You're done. Your repo is now AI-native."
+> "Here's your action plan — you can literally do this during lunch. The diagram shows four phases flowing left to right.
+>
+> **Phase 1: Foundation.** Create AGENTS.md at your repo root. Add your setup, build, test, and lint commands. Then create `.github/copilot-instructions.md` with your global coding standards. That's three files in five minutes.
+>
+> **Phase 2: Scoped Rules.** Create a `.github/instructions/` directory. Add framework-specific `.instructions.md` files — one for React, one for Python, whatever you use. Set the `applyTo` glob patterns so each file only activates for the right file types.
+>
+> **Phase 3: Documentation.** Structure your README with machine-readable `##` headings. If you have a monorepo, add a nested AGENTS.md in each package directory.
+>
+> **Phase 4: Verify.** This is the step people skip — don't. Ask your agent: 'How do I build this project?' Ask it: 'What are our naming conventions?' Verify the commands actually execute. If the answers are right, commit and push. You're done — your repo is now AI-native."
 
 ---
 
@@ -218,7 +246,15 @@ xychart-beta
 ```
 
 > **Speaking Notes:**
-> "There are two ways to get context to an agent. _Passive_ — you push it, it's always in the prompt. _Active_ — the agent pulls it by searching. The problem with active? Vercel found agents skip docs **44% of the time** because they think they already know the answer. Skills alone — same 53% as baseline. With explicit prompting: 79%. But a compressed 8KB AGENTS.md in the prompt? **100% success rate.** Passive removes the decision point. The agent can't skip what's already in its prompt."
+> "There are two ways to get context to an agent, and the diagram on the left shows both.
+>
+> **Passive steering** — the push model. Your AGENTS.md, copilot-instructions.md, and scoped .instructions.md files all get injected directly into the system prompt. They're _always present_. The agent doesn't choose to load them — they're just there.
+>
+> **Active retrieval** — the pull model. The agent decides to search using tools like `read_file`, `grep_search`, or `semantic_search`. The critical word is _decides_. There's a decision point, and Vercel found that agents skip searching **44% of the time** because they think they already know the answer.
+>
+> Now look at the bar chart on the right — this is Vercel's actual eval data from January 2026. Baseline with no context files: 53% task success. Skills only — that's pure active retrieval — same 53%. Skills with explicit prompting: 79%. But a compressed 8KB AGENTS.md injected passively into the prompt? **100% success rate.**
+>
+> The takeaway is clear: passive removes the decision point entirely. The agent can't skip what's already in its prompt."
 
 ---
 
@@ -243,7 +279,15 @@ graph LR
 ```
 
 > **Speaking Notes:**
-> "Let's be honest about the research. Vercel showed 53% to 100% — dramatic. ETH Zürich found marginal success-rate impact in a rigorous study. The reconciliation is simple: **context files matter most when knowledge is absent from training data.** Vercel tested _new_ APIs. ETH tested known tasks. Practical takeaway: don't auto-generate these files with an LLM — encode your _tribal knowledge_, the stuff not in any documentation. That's where the ROI is."
+> "Let's be honest about the research — the diagram shows both sides.
+>
+> On the left, **Vercel's eval** from January 2026: they tested new APIs that were absent from the model's training data. Result: 53% baseline jumped to 100% with AGENTS.md. Dramatic.
+>
+> On the right, **ETH Zürich's rigorous study** — 138 tasks across 12 repos with 4 different agents. They found marginal success-rate impact. But here's the nuance: they saw +22% improvement in reasoning quality and agents wrote more tests.
+>
+> The diamond in the middle is the reconciliation: _when does it help most?_ Three conditions — first, when knowledge is absent from training data. Second, when you have project-specific conventions the model has never seen. Third, when there's tribal knowledge that's not in any documentation.
+>
+> Practical takeaway: don't auto-generate AGENTS.md with an LLM — those are redundant with what's already in the training data. Write it yourself. Encode the stuff that burns people — the non-obvious decisions, the 'we tried X and it broke everything' knowledge. That's where the ROI is."
 
 ---
 
@@ -322,7 +366,15 @@ graph LR
 ```
 
 > **Speaking Notes:**
-> "Where is your repo today? Most teams are at Level 1 — it builds and tests run. Getting to Level 2 takes 15 minutes. Level 3 takes an afternoon. That's where the biggest ROI is. Three time horizons: **Today** — create AGENTS.md, add copilot-instructions, run the audit. **This week** — scope framework rules, measure before/after. **This month** — explore Skills and MCP, set up quarterly audits. The difference is night and day. Questions?"
+> "Where is your repo today? The maturity model shows five levels.
+>
+> **Level 1: Functional** — your project builds and tests exist. That's most teams right now. **Level 2: Documented** — you've added AGENTS.md and custom instructions. That takes 15 minutes. **Level 3: Standardized** — scoped rules per framework plus monorepo routing. An afternoon of work. **Level 4: Optimized** — you're using Skills and MCP integrations. **Level 5: Autonomous** — living maintenance with measured metrics and quarterly audits.
+>
+> The biggest ROI jump is from Level 1 to Level 3 — and you can get there today.
+>
+> The second diagram breaks it into three time horizons with specific action items. **Today, 15 minutes:** create AGENTS.md, add copilot-instructions.md, run the audit from slide 4. **This week:** scope your framework rules with glob patterns, add monorepo routing if applicable, and measure before/after on a real task. **This month:** explore Skills and MCP for advanced workflows, set up quarterly audits to keep files current, and start tracking CI pass rates as your success metric.
+>
+> The difference is night and day. Questions?"
 
 ---
 
