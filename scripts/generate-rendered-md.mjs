@@ -21,7 +21,10 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, "..");
 
 const INPUT = resolve(ROOT, "context-engineering-tech-talk.md");
-const OUTPUT = resolve(ROOT, "context-engineering-tech-talk-rendered.md");
+const OUTPUT = resolve(
+  ROOT,
+  "generated-context-engineering-tech-talk-rendered.md",
+);
 const IMAGES = "images"; // relative path used in the output markdown
 
 const content = readFileSync(INPUT, "utf8");
