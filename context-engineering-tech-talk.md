@@ -144,19 +144,19 @@ graph LR
 
     Root --> AGENTS["AGENTS.md<br/><i>Project context</i>"]
     Root --> GH[".github/"]
-    Root --> WS[".windsurf/skills/<br/><i>Reusable workflows</i>"]
     Root --> PKG["packages/"]
 
     GH --> CPI["copilot-instructions.md<br/><i>Global standards</i>"]
     GH --> INST["instructions/<br/><i>Scoped rules per framework</i>"]
     GH --> PROMPTS["prompts/<br/><i>Team-shared templates</i>"]
+    GH --> WS["skills/<br/><i>Reusable workflows</i>"]
 
     PKG --> FE["frontend/ + AGENTS.md"]
     PKG --> BE["backend/ + AGENTS.md"]
 ```
 
 > **Speaking Notes:**
-> "Here's what this looks like in a real repo. This is 'acme-webapp' — a typical monorepo. At the root: AGENTS.md with your project overview and commands. In .github: copilot-instructions.md for global standards, scoped instruction files for React and Python, and pre-made prompts your whole team can share — like 'new-api-endpoint' that gives the agent a consistent starting template. In .windsurf: reusable skills for code review and database migrations. Each package has its own AGENTS.md for domain-specific rules. Let me show you a few of these files…"
+> "Here's what this looks like in a real repo. This is 'acme-webapp' — a typical monorepo. At the root: AGENTS.md with your project overview and commands. In .github: copilot-instructions.md for global standards, scoped instruction files for React and Python, pre-made prompts your whole team can share, and a skills folder for reusable agent workflows — things like 'run-code-review' or 'migrate-database'. Each package has its own AGENTS.md for domain-specific rules. The .github folder is the right home for these — it works across Copilot, Windsurf, Cursor, and any other agent that follows the spec."
 
 ---
 

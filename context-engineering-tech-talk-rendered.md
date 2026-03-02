@@ -42,7 +42,7 @@
 ![Slide 5 diagram](images/5.svg)
 
 > **Speaking Notes:**
-> "Here's what this looks like in a real repo. This is 'acme-webapp' — a typical monorepo. At the root: AGENTS.md with your project overview and commands. In .github: copilot-instructions.md for global standards, scoped instruction files for React and Python, and pre-made prompts your whole team can share — like 'new-api-endpoint' that gives the agent a consistent starting template. In .windsurf: reusable skills for code review and database migrations. Each package has its own AGENTS.md for domain-specific rules. Let me show you a few of these files…"
+> "Here's what this looks like in a real repo. This is 'acme-webapp' — a typical monorepo. At the root: AGENTS.md with your project overview and commands. In .github: copilot-instructions.md for global standards, scoped instruction files for React and Python, pre-made prompts your whole team can share, and a skills folder for reusable agent workflows — things like 'run-code-review' or 'migrate-database'. Each package has its own AGENTS.md for domain-specific rules. The .github folder is the right home for these — it works across Copilot, Windsurf, Cursor, and any other agent that follows the spec."
 
 ---
 
