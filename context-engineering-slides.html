@@ -409,6 +409,49 @@
           min-width: auto;
         }
       }
+      @media print {
+        html,
+        body {
+          overflow: visible !important;
+          height: auto !important;
+          background: var(--bg) !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+          color-adjust: exact !important;
+        }
+        #progress,
+        #counter,
+        #nav-hints,
+        #tb,
+        #notes-overlay,
+        .sn,
+        .src {
+          display: none !important;
+        }
+        #deck {
+          display: block !important;
+          overflow: visible !important;
+        }
+        .slide {
+          display: flex !important;
+          visibility: visible !important;
+          opacity: 1 !important;
+          position: relative !important;
+          width: 100vw !important;
+          min-height: 100vh !important;
+          page-break-after: always;
+          break-after: page;
+          background: var(--bg) !important;
+        }
+        .slide:last-child {
+          page-break-after: auto;
+          break-after: auto;
+        }
+        .diagram-img {
+          max-height: 60vh !important;
+          width: auto !important;
+        }
+      }
     </style>
   </head>
   <body>
@@ -420,17 +463,19 @@
       ><button onclick="toggleFullscreen()">Fullscreen</button>
     </div>
     <div id="deck">
+      <!-- ============ PART 1: PRACTICAL FIRST (7 min) ============ -->
+
       <section class="slide active" data-slide="1">
         <div class="sb">Opening</div>
         <h1>
           "Your Repo Is <span class="hl">Fighting</span> Your AI Agents"<span
             class="tm"
-            >2 min</span
+            >1 min</span
           >
         </h1>
         <p class="st">
           70% of AI coding tasks fail — not because models are bad, but because
-          <strong>context</strong> is wrong.
+          <strong>context</strong> is wrong. A few files fix it.
         </p>
         <div class="g3" style="margin-bottom: 14px">
           <div class="sc">
@@ -463,606 +508,61 @@
           >
         </div>
         <div class="sn">
-          <strong>Speaking Notes:</strong> "70% of AI coding tasks still fail in
-          real-world repos — not because the models are bad, but because the
-          <em>context</em> is wrong. Vercel proved it: baseline repos achieve
-          53% task success. AI-native repos hit 100%. Today I'll show you the
-          exact engineering blueprint to get there. You can implement it this
-          afternoon."
+          <strong>Speaking Notes:</strong> "How many of you use Copilot or
+          another AI coding agent daily? And how often does it get things
+          <em>wrong</em> — compiles fine, but violates your conventions? Vercel
+          measured this: baseline repos get 53% task success. Repos with a few
+          simple files hit 100%. Today I'll show you exactly which files to add,
+          what to put in them, and you can do it this afternoon. Let's start
+          with the practical steps."
         </div>
       </section>
 
       <section class="slide" data-slide="2">
-        <div class="sb">The Problem</div>
+        <div class="sb">Practical</div>
         <h1>
-          Parametric vs. <span class="hl">Grounded</span> Knowledge<span
-            class="tm"
-            >3 min</span
-          >
+          The <span class="hl">Essential Files</span> — Your AI Agent
+          Toolkit<span class="tm">2 min</span>
         </h1>
         <p class="st">
-          Every AI agent reconciles two knowledge sources via its attention
-          budget. When grounded context is missing, parametric knowledge fills
-          the gap — <strong>confidently wrong</strong>.
+          Four files that every major AI coding agent reads. Add these and your
+          agent stops guessing.
         </p>
-        <div class="dr">
+        <div class="dr center">
           <div class="db f">
             <img
               src="images/2.svg"
-              alt="Parametric vs Grounded Knowledge diagram"
+              alt="The Essential Files diagram"
               class="diagram-img"
             />
           </div>
         </div>
-        <div class="kp">
-          <div class="lb">Key Insight</div>
-          Vercel found agents skip framework docs
-          <strong>44% of the time</strong> because they think they already know
-          the answer.
+        <div class="src">
+          <a href="https://agents.md/" target="_blank">AGENTS.md Spec</a>
         </div>
         <div class="src">
           <a
-            href="https://vercel.com/blog/agents-md-outperforms-skills-in-our-agent-evals"
+            href="https://docs.github.com/copilot/customizing-copilot/adding-custom-instructions-for-github-copilot"
             target="_blank"
-            >Vercel Blog</a
-          >
-        </div>
-        <div class="src">
-          <a href="https://arxiv.org/abs/2602.11988" target="_blank"
-            >arXiv 2602.11988</a
+            >GitHub Copilot Docs</a
           >
         </div>
         <div class="sn">
-          <strong>Speaking Notes:</strong> "Every AI agent has two knowledge
-          sources. <em>Parametric</em> — what it learned in training.
-          <em>Grounded</em> — what's in your repo right now. The problem?
-          Parametric knowledge is stale and generic. Your private APIs, your
-          naming conventions, your monorepo structure — none of that is in the
-          training data. When agents can't find grounded context, they guess.
-          And they guess <em>confidently</em>. Vercel found agents skip
-          framework docs 44% of the time because they think they already know
-          the answer."
+          <strong>Speaking Notes:</strong> "Four files — that's all you need to
+          get started. <strong>AGENTS.md</strong> at your repo root — every
+          major AI agent reads it: Copilot, Devin, Cursor, Windsurf. It's your
+          project's instruction manual for AI.
+          <strong>copilot-instructions.md</strong> — GitHub Copilot specifically
+          looks for this; it's always injected into the system prompt.
+          <strong>Scoped instruction files</strong> — glob-matched rules so your
+          React conventions only apply to .tsx files. And
+          <strong>Skills and Prompts</strong> — reusable workflows and
+          team-shared prompt templates. Let me show you what goes in each one."
         </div>
       </section>
 
       <section class="slide" data-slide="3">
-        <div class="sb">The Problem</div>
-        <h1>
-          The <span class="hl">Silent Killer</span><span class="tm">2 min</span>
-        </h1>
-        <p class="st">
-          Even million-token windows have a ticking time bomb. Agents silently
-          auto-compact — your conventions are the first things discarded.
-        </p>
-        <div class="dr center">
-          <div class="db f">
-            <img
-              src="images/3.svg"
-              alt="Context Window zones diagram"
-              class="diagram-img"
-            />
-          </div>
-        </div>
-        <div class="kp">
-          <div class="lb">Why This Matters</div>
-          The code compiles. Tests might pass. But it silently violates your
-          architecture. This is why we need <strong>structured context</strong>,
-          not just throwing everything into the window.
-        </div>
-        <div class="sn">
-          <strong>Speaking Notes:</strong> "Even with million-token context
-          windows, there's a ticking time bomb: <em>context rot</em>. As the
-          window fills, agents silently auto-compact. Your project conventions —
-          the first things discarded. The agent doesn't tell you. The code
-          compiles. Tests might pass. But it violates your architecture. This is
-          why we need <em>structured</em> context, not just throwing everything
-          into the window."
-        </div>
-      </section>
-
-      <section class="slide" data-slide="4">
-        <div class="sb">Core Concepts</div>
-        <h1>
-          Two Models of <span class="hl">Context Delivery</span
-          ><span class="tm">3 min</span>
-        </h1>
-        <p class="st">
-          Passive steering (push) vs. Active retrieval (pull). Passive wins
-          reliability. Active wins scale.
-        </p>
-        <div class="dr center">
-          <div class="db f">
-            <img
-              src="images/4.svg"
-              alt="Passive Steering vs Active Retrieval diagram"
-              class="diagram-img"
-            />
-          </div>
-        </div>
-        <div class="kp">
-          <div class="lb">Vercel's Key Insight</div>
-          <strong>Passive eliminates the Decision Gap.</strong> The agent can't
-          skip what's already in its prompt.
-        </div>
-        <div class="src">
-          <a
-            href="https://vercel.com/blog/agents-md-outperforms-skills-in-our-agent-evals"
-            target="_blank"
-            >Vercel Blog</a
-          >
-        </div>
-        <div class="sn">
-          <strong>Speaking Notes:</strong> "There are exactly two ways to get
-          context to an agent. <em>Passive</em> — you push it. It's always in
-          the prompt. The agent never decides whether to look for it.
-          <em>Active</em> — the agent pulls it on demand by searching your
-          codebase. Both have trade-offs. Passive wins reliability. Active wins
-          scale. The key insight from Vercel:
-          <strong>passive eliminates the Decision Gap</strong>. The agent can't
-          skip what's already in its prompt."
-        </div>
-      </section>
-
-      <section class="slide" data-slide="5">
-        <div class="sb">Core Concepts</div>
-        <h1>
-          <span class="hl">Why Passive Wins</span><span class="tm">2 min</span>
-        </h1>
-        <p class="st">
-          When agents decide whether to search, they skip docs 44% of the time.
-          Passive context removes the decision entirely.
-        </p>
-        <div class="g2">
-          <div class="db">
-            <img
-              src="images/5a.svg"
-              alt="Active Only vs Passive+Active path diagram"
-              class="diagram-img"
-            />
-          </div>
-          <div class="db">
-            <img
-              src="images/5b.svg"
-              alt="Vercel Agent Eval Results bar chart"
-              class="diagram-img"
-            />
-          </div>
-        </div>
-        <div class="kp">
-          <div class="lb">Critical Result</div>
-          A compressed <strong>8KB AGENTS.md</strong> achieved
-          <strong>100% success rate</strong> — beating 40KB of full docs via
-          Skills (53%).
-        </div>
-        <div class="src">
-          <a
-            href="https://vercel.com/blog/agents-md-outperforms-skills-in-our-agent-evals"
-            target="_blank"
-            >Vercel Blog, Jan 2026</a
-          >
-        </div>
-        <div class="sn">
-          <strong>Speaking Notes:</strong> "This is the most important slide.
-          Vercel tested teaching agents Next.js 16 APIs — knowledge
-          <em>absent</em> from training data. Skills alone? 53% — same as
-          baseline, because agents only invoked them 56% of the time. Even with
-          explicit prompting: 79%. But a compressed 8KB AGENTS.md passive index?
-          <strong>100% success rate.</strong> The passive file removed the
-          decision point entirely."
-        </div>
-      </section>
-
-      <section class="slide" data-slide="6">
-        <div class="sb">Architecture</div>
-        <h1>
-          The Five Pillars of <span class="hl">AI-Native Repos</span
-          ><span class="tm">3 min</span>
-        </h1>
-        <p class="st">
-          Unified Knowledge → Scoped Precision → Monorepo Mastery → AI-Readable
-          Docs → Living Maintenance
-        </p>
-        <div class="dr top-down">
-          <div class="db">
-            <img
-              src="images/6a.svg"
-              alt="Five Pillars of AI-Native Repos diagram"
-              class="diagram-img"
-            />
-          </div>
-          <div class="db">
-            <img
-              src="images/6b.svg"
-              alt="Repository tree structure diagram"
-              class="diagram-img"
-            />
-          </div>
-        </div>
-        <div class="src">
-          <a href="https://agents.md/" target="_blank">AGENTS.md Spec</a>
-        </div>
-        <div class="src">
-          <a
-            href="https://docs.github.com/copilot/customizing-copilot/adding-custom-instructions-for-github-copilot"
-            target="_blank"
-            >GitHub Copilot Docs</a
-          >
-        </div>
-        <div class="sn">
-          <strong>Speaking Notes:</strong> "Five pillars.
-          <strong>Unified Knowledge</strong> — one AGENTS.md at root, one
-          copilot-instructions.md. <strong>Scoped Precision</strong> —
-          glob-matched instruction files so React rules only apply to .tsx
-          files. <strong>Monorepo Mastery</strong> — nested AGENTS.md with
-          nearest-file precedence. <strong>AI-Readable Docs</strong> —
-          structured README headings. <strong>Living Maintenance</strong> —
-          audit scripts that verify your context files are still accurate. This
-          tree is what your repo should look like when you're done."
-        </div>
-      </section>
-
-      <section class="slide" data-slide="7">
-        <div class="sb">Architecture</div>
-        <h1>
-          Anthropic's <span class="hl">Progressive Disclosure</span
-          ><span class="tm">2 min</span>
-        </h1>
-        <p class="st">
-          Three-level loading: YAML frontmatter → SKILL.md body → Linked
-          resources. Hundreds of skills, minimal token overhead.
-        </p>
-        <div class="dr center">
-          <div class="db f">
-            <img
-              src="images/7.svg"
-              alt="Progressive Disclosure three-level loading diagram"
-              class="diagram-img"
-            />
-          </div>
-        </div>
-        <div class="src">
-          <a
-            href="https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices"
-            target="_blank"
-            >Anthropic Skills Guide</a
-          >
-        </div>
-        <div class="sn">
-          <strong>Speaking Notes:</strong> "Anthropic's Skills framework is the
-          gold standard for progressive disclosure. Level 1 — just the YAML
-          frontmatter, about 100 tokens — is <em>always</em> in the system
-          prompt. It tells Claude <em>when</em> to activate the skill. Level 2 —
-          the full SKILL.md body — loads only when there's a match. Level 3 —
-          reference files and scripts — load only on demand. You can have
-          hundreds of skills installed with minimal token overhead. This is how
-          you scale expertise without bloating context."
-        </div>
-      </section>
-
-      <section class="slide" data-slide="8">
-        <div class="sb">Architecture</div>
-        <h1>The MCP + Skills Architecture<span class="tm">1 min</span></h1>
-        <p class="st">
-          MCP provides capabilities (the kitchen). Skills provide workflows (the
-          recipes). Together: reliable, scalable AI development.
-        </p>
-        <div class="dr center">
-          <div class="db f">
-            <img
-              src="images/8.svg"
-              alt="MCP + Skills Architecture diagram"
-              class="diagram-img"
-            />
-          </div>
-        </div>
-        <div class="kp">
-          <div class="lb">The Pattern</div>
-          Without skills, users connect an MCP and ask <em>"now what?"</em> With
-          skills, workflows activate automatically.
-        </div>
-        <div class="src">
-          <a
-            href="https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices"
-            target="_blank"
-            >Anthropic Skills Guide</a
-          >
-        </div>
-        <div class="sn">
-          <strong>Speaking Notes:</strong> "Anthropic uses the kitchen analogy.
-          MCP gives you the kitchen — tools, ingredients, equipment. Skills give
-          you the recipes — <em>how</em> to use those tools effectively. Without
-          skills, users connect an MCP and ask 'now what?' With skills,
-          workflows activate automatically. This is the architecture for scaling
-          AI-powered workflows."
-        </div>
-      </section>
-
-      <section class="slide" data-slide="9">
-        <div class="sb">Architecture</div>
-        <h1>
-          <span class="hl">Two Architectures</span><span class="tm">2 min</span>
-        </h1>
-        <p class="st">
-          IDE plugin (sub-second, surgical) vs. autonomous cloud agent (full VM,
-          large-scale). Complementary, not competing.
-        </p>
-        <div class="dr center">
-          <div class="db f">
-            <img
-              src="images/9a.svg"
-              alt="GitHub Copilot vs Devin architecture diagram"
-              class="diagram-img"
-            />
-          </div>
-        </div>
-        <div class="src">
-          <a
-            href="https://docs.github.com/copilot/customizing-copilot/adding-custom-instructions-for-github-copilot"
-            target="_blank"
-            >GitHub Copilot Docs</a
-          >
-        </div>
-        <div class="src">
-          <a href="https://agents.md/" target="_blank">AGENTS.md Spec</a>
-        </div>
-        <div class="sn">
-          <strong>Speaking Notes:</strong> "Two leading tools, two opposite
-          philosophies. Copilot is the <em>silent partner</em> — low latency,
-          surgically precise, lives in your IDE. Devin is the
-          <em>autonomous engineer</em> — give it a task, it spins up a VM,
-          indexes your entire codebase, and works independently. They're
-          complementary. Use Copilot for real-time flow. Use Devin for
-          large-scale refactors. Both read AGENTS.md. Both benefit from the five
-          pillars."
-        </div>
-      </section>
-
-      <section class="slide" data-slide="10">
-        <div class="sb">Evidence</div>
-        <h1>
-          The Academic <span class="hl">Reality Check</span
-          ><span class="tm">2 min</span>
-        </h1>
-        <p class="st">
-          Vercel shows dramatic gains. ETH Zürich finds marginal effects. The
-          reconciliation reveals when context files actually help.
-        </p>
-        <div class="dr center">
-          <div class="db f">
-            <img
-              src="images/10.svg"
-              alt="Vercel vs ETH Zürich research reconciliation"
-              class="diagram-img"
-            />
-          </div>
-        </div>
-        <div class="kp">
-          <div class="lb">Practical Takeaway</div>
-          Don't auto-generate AGENTS.md with an LLM — those are redundant.
-          <strong>Write it yourself.</strong> Encode your
-          <em>tribal knowledge</em>.
-        </div>
-        <div class="src">
-          <a
-            href="https://vercel.com/blog/agents-md-outperforms-skills-in-our-agent-evals"
-            target="_blank"
-            >Vercel Blog</a
-          >
-        </div>
-        <div class="src">
-          <a href="https://arxiv.org/abs/2602.11988" target="_blank"
-            >arXiv 2602.11988</a
-          >
-        </div>
-        <div class="sn">
-          <strong>Speaking Notes:</strong> "Let's be honest about the research.
-          Vercel showed dramatic gains — 53% to 100%. But ETH Zürich's rigorous
-          academic study found marginal effects. How do we reconcile this?
-          <strong
-            >Context matters most when knowledge is absent from
-            training.</strong
-          >
-          Vercel tested <em>new</em> APIs. ETH tested tasks where info already
-          existed. The practical takeaway: don't auto-generate AGENTS.md with an
-          LLM — those are redundant. Write it yourself. Encode your
-          <em>tribal knowledge</em>: the stuff that's not in any documentation."
-        </div>
-      </section>
-
-      <section class="slide" data-slide="11">
-        <div class="sb">Architecture</div>
-        <h1>
-          <span class="hl">Nearest-File Precedence</span
-          ><span class="tm">1 min</span>
-        </h1>
-        <p class="st">
-          The root AGENTS.md routes. Each package overrides. Zero context
-          leakage between domains.
-        </p>
-        <div class="dr">
-          <div class="db f">
-            <img
-              src="images/11.svg"
-              alt="Nearest-file precedence diagram"
-              class="diagram-img"
-            />
-          </div>
-        </div>
-        <div class="kp">
-          <div class="lb">Design Principle</div>
-          When editing
-          <code
-            style="
-              font-family: var(--mn);
-              background: var(--bg);
-              padding: 1px 6px;
-              border-radius: 4px;
-            "
-            >packages/frontend/src/Button.tsx</code
-          >, the agent reads <strong>frontend/AGENTS.md</strong> first, then
-          falls back to root. It <strong>never</strong> loads backend or shared
-          rules.
-        </div>
-        <div class="src">
-          <a href="https://agents.md/" target="_blank">AGENTS.md Spec</a>
-        </div>
-        <div class="src">
-          <a
-            href="https://github.blog/ai-and-ml/github-copilot/how-to-write-a-great-agents-md-lessons-from-over-2500-repositories/"
-            target="_blank"
-            >GitHub Blog</a
-          >
-        </div>
-        <div class="sn">
-          <strong>Speaking Notes:</strong> "In monorepos, nearest-file
-          precedence is everything. The root AGENTS.md acts as a router. Each
-          package has its own. When an agent edits
-          `packages/frontend/src/Button.tsx`, it reads
-          `packages/frontend/AGENTS.md` first, then falls back to root. It
-          <em>never</em> loads backend or shared rules. Zero context leakage.
-          This is how you prevent the agent from applying Express conventions to
-          your React components."
-        </div>
-      </section>
-
-      <section class="slide" data-slide="12">
-        <div class="sb">Architecture</div>
-        <h1>
-          The Hybrid <span class="hl">Strategy Stack</span
-          ><span class="tm">1 min</span>
-        </h1>
-        <p class="st">
-          Five layers from foundation (passive, always-present) to large-scale
-          active navigation. Build from the bottom up.
-        </p>
-        <div class="dr center">
-          <div class="db f">
-            <img
-              src="images/12.svg"
-              alt="Hybrid strategy stack diagram"
-              class="diagram-img"
-            />
-          </div>
-        </div>
-        <div class="kp">
-          <div class="lb">ROI Curve</div>
-          Most teams only need the first two layers —
-          <strong>Foundation + Scoped Rules</strong> — to see massive
-          improvements.
-        </div>
-        <div class="sn">
-          <strong>Speaking Notes:</strong> "Here's the stack. Foundation is
-          passive — always present. Scoped rules are passive — loaded per file
-          type. Documentation is passive — discoverable. Then active layers:
-          Skills and MCP for complex workflows, and search tools for navigating
-          massive codebases. Build from the bottom up. Most teams only need the
-          first two layers to see massive improvements."
-        </div>
-      </section>
-
-      <section class="slide" data-slide="13">
-        <div class="sb">Implementation</div>
-        <h1>
-          The Passive Steering <span class="hl">Workflow</span
-          ><span class="tm">1 min</span>
-        </h1>
-        <p class="st">
-          From file open → glob match → context merge → deterministic output. No
-          searching. No guessing.
-        </p>
-        <div class="dr">
-          <div class="db f">
-            <img
-              src="images/13.svg"
-              alt="Passive steering workflow sequence diagram"
-              class="diagram-img"
-            />
-          </div>
-        </div>
-        <div class="sn">
-          <strong>Speaking Notes:</strong> "Here's the flow in practice.
-          Developer opens a TSX file. The context engine silently matches globs,
-          loads the nearest AGENTS.md, merges copilot-instructions.md and the
-          scoped React rules. By the time the developer types a request, the
-          agent already has every convention in its prompt. No searching. No
-          guessing. Deterministic output."
-        </div>
-      </section>
-
-      <section class="slide" data-slide="14">
-        <div class="sb">Implementation</div>
-        <h1>
-          Repository Readiness <span class="hl">Maturity Model</span
-          ><span class="tm">1 min</span>
-        </h1>
-        <p class="st">
-          Five levels from "it builds" to "fully autonomous." Most teams are at
-          Level 1. Getting to Level 3 takes an afternoon.
-        </p>
-        <div class="dr center">
-          <div class="db f">
-            <img
-              src="images/14.svg"
-              alt="Repository readiness maturity model"
-              class="diagram-img"
-            />
-          </div>
-        </div>
-        <div class="g3" style="margin-top: 14px">
-          <div class="sc">
-            <div class="n" style="font-size: 28px">L1 → L2</div>
-            <div class="l">15 minutes</div>
-          </div>
-          <div class="sc">
-            <div class="n" style="font-size: 28px">L2 → L3</div>
-            <div class="l">One afternoon</div>
-          </div>
-          <div class="sc">
-            <div class="n" style="font-size: 28px">L3+</div>
-            <div class="l">Biggest ROI zone</div>
-          </div>
-        </div>
-        <div class="sn">
-          <strong>Speaking Notes:</strong> "Where is your repo today? Level 1 —
-          it builds and tests run. Level 2 — you've added AGENTS.md. Level 3 —
-          scoped instructions and monorepo routing. Level 4 — Skills and MCP
-          integrations. Level 5 — living maintenance with measured metrics. Most
-          teams are at Level 1. Getting to Level 2 takes 15 minutes. Getting to
-          Level 3 takes an afternoon. That's where the biggest ROI is."
-        </div>
-      </section>
-
-      <section class="slide" data-slide="15">
-        <div class="sb">Action</div>
-        <h1>
-          The <span class="hl">15-Minute Audit</span
-          ><span class="tm">2 min</span>
-        </h1>
-        <p class="st">
-          Four phases. Foundation → Scoped Rules → Documentation → Verify.
-          Commit everything.
-        </p>
-        <div class="dr center">
-          <div class="db f">
-            <img
-              src="images/15.svg"
-              alt="15-minute audit diagram"
-              class="diagram-img"
-            />
-          </div>
-        </div>
-        <div class="sn">
-          <strong>Speaking Notes:</strong> "Here's your action plan. Four
-          phases, 15 minutes total. Phase 1: create AGENTS.md with your
-          commands. Phase 2: scope framework rules with glob patterns. Phase 3:
-          structure documentation. Phase 4: verify by actually asking your agent
-          questions and confirming correctness. Commit everything. You're done.
-          Your repo is now AI-native."
-        </div>
-      </section>
-
-      <section class="slide" data-slide="16">
-        <div class="sb">Action</div>
+        <div class="sb">Practical</div>
         <h1>
           What Goes in <span class="hl">AGENTS.md</span
           ><span class="tm">1 min</span>
@@ -1074,7 +574,7 @@
         <div class="dr center">
           <div class="db f">
             <img
-              src="images/16.svg"
+              src="images/3.svg"
               alt="What goes in AGENTS.md diagram"
               class="diagram-img"
             />
@@ -1101,49 +601,282 @@
           sections. Project overview — one sentence. Setup commands — in
           execution order. Code style — your non-obvious conventions. Testing
           requirements. And common pitfalls — the things that burn people.
-          Critical rule: keep it under 2 pages. Concise beats comprehensive. An
-          8KB compressed index beat 40KB of full docs in Vercel's eval."
+          Critical rule: keep it under 2 pages. Vercel proved that an 8KB
+          compressed index beat 40KB of full docs. Concise beats comprehensive
+          every time."
         </div>
       </section>
 
-      <section class="slide" data-slide="17">
-        <div class="sb">Synthesis</div>
+      <section class="slide" data-slide="4">
+        <div class="sb">Practical</div>
         <h1>
-          The Complete <span class="hl">Context Architecture</span
-          ><span class="tm">1 min</span>
+          The <span class="hl">15-Minute Audit</span
+          ><span class="tm">2 min</span>
         </h1>
         <p class="st">
-          Three layers → one agent → deterministic, framework-aligned,
-          convention-compliant code.
+          Four phases. Foundation → Scoped Rules → Documentation → Verify. You
+          can do this during lunch.
         </p>
         <div class="dr center">
           <div class="db f">
             <img
-              src="images/17.svg"
-              alt="Complete context architecture diagram"
+              src="images/4.svg"
+              alt="15-minute audit checklist diagram"
               class="diagram-img"
             />
           </div>
         </div>
         <div class="sn">
-          <strong>Speaking Notes:</strong> "Here's the complete architecture.
-          Three layers feeding into the agent. Passive context — always in the
-          prompt, zero decision points. Active retrieval — on-demand tools for
-          scale. Skills — Anthropic's progressive disclosure for complex
-          workflows. Together, they produce deterministic, framework-aligned,
-          convention-compliant code. This is context engineering."
+          <strong>Speaking Notes:</strong> "Here's your action plan — you can do
+          this during lunch. Four phases, 15 minutes total. Phase 1: create
+          AGENTS.md with your commands. Phase 2: scope framework rules with glob
+          patterns. Phase 3: structure your documentation. Phase 4: verify by
+          actually <em>asking</em> your agent questions and confirming the
+          output is correct. Commit everything. You're done. Your repo is now
+          AI-native."
         </div>
       </section>
 
-      <section class="slide" data-slide="18">
-        <div class="sb">Call to Action</div>
-        <h1>Key Takeaways & Call to Action<span class="tm">2 min</span></h1>
-        <p class="st">Three time horizons. Today → This Week → This Month.</p>
+      <section class="slide" data-slide="5">
+        <div class="sb">Practical</div>
+        <h1>
+          Example Repo <span class="hl">in Action</span
+          ><span class="tm">1 min</span>
+        </h1>
+        <p class="st">
+          "acme-webapp" — a typical monorepo with all the essential files
+          integrated.
+        </p>
         <div class="dr center">
           <div class="db f">
             <img
-              src="images/18a.svg"
-              alt="Today, This Week, This Month action plan"
+              src="images/5.svg"
+              alt="Example acme-webapp repository structure"
+              class="diagram-img"
+            />
+          </div>
+        </div>
+        <div class="kp">
+          <div class="lb">What's Inside</div>
+          <strong>AGENTS.md</strong> — project overview &amp; commands.
+          <strong>copilot-instructions.md</strong> — global coding standards.
+          <strong>Scoped rules</strong> — per-framework globs.
+          <strong>Prompts</strong> — team-shared templates.
+          <strong>Skills</strong> — reusable agent workflows.
+        </div>
+        <div class="sn">
+          <strong>Speaking Notes:</strong> "Here's what this looks like in a
+          real repo. This is 'acme-webapp' — a typical monorepo. At the root:
+          AGENTS.md with your project overview and commands. In .github:
+          copilot-instructions.md for global standards, scoped instruction files
+          for React and Python, and pre-made prompts your whole team can share —
+          like 'new-api-endpoint' that gives the agent a consistent starting
+          template. In .windsurf: reusable skills for code review and database
+          migrations. Each package has its own AGENTS.md for domain-specific
+          rules."
+        </div>
+      </section>
+
+      <!-- ============ PART 2: THE WHY (5 min) ============ -->
+
+      <section class="slide" data-slide="6">
+        <div class="sb">The Why</div>
+        <h1>
+          Parametric vs. <span class="hl">Grounded</span> Knowledge<span
+            class="tm"
+            >1.5 min</span
+          >
+        </h1>
+        <p class="st">
+          When grounded context is missing, parametric knowledge fills the gap —
+          <strong>confidently wrong</strong>.
+        </p>
+        <div class="dr">
+          <div class="db f">
+            <img
+              src="images/6.svg"
+              alt="Parametric vs Grounded Knowledge diagram"
+              class="diagram-img"
+            />
+          </div>
+        </div>
+        <div class="kp">
+          <div class="lb">Key Insight</div>
+          Your private APIs, naming conventions, monorepo structure — none of
+          that is in the training data. The files we just set up provide that
+          grounded context.
+        </div>
+        <div class="sn">
+          <strong>Speaking Notes:</strong> "Now you know <em>what</em> to do —
+          let me explain <em>why</em> it works. Every AI agent has two knowledge
+          sources. <em>Parametric</em> — what it learned in training.
+          <em>Grounded</em> — what's in your repo right now. Your private APIs,
+          your naming conventions — none of that is in the training data. When
+          agents can't find grounded context, they guess <em>confidently</em>.
+          The files we just set up provide that grounded context so the agent
+          stops guessing."
+        </div>
+      </section>
+
+      <section class="slide" data-slide="7">
+        <div class="sb">The Why</div>
+        <h1>
+          <span class="hl">Why Passive Wins</span><span class="tm">2 min</span>
+        </h1>
+        <p class="st">
+          Passive (push) vs. Active (pull). When agents decide whether to
+          search, they skip docs 44% of the time.
+        </p>
+        <div class="g2">
+          <div class="db">
+            <img
+              src="images/7a.svg"
+              alt="Passive vs Active context delivery diagram"
+              class="diagram-img"
+            />
+          </div>
+          <div class="db">
+            <img
+              src="images/7b.svg"
+              alt="Vercel Agent Eval Results bar chart"
+              class="diagram-img"
+            />
+          </div>
+        </div>
+        <div class="kp">
+          <div class="lb">Critical Result</div>
+          A compressed <strong>8KB AGENTS.md</strong> achieved
+          <strong>100% success rate</strong> — beating 40KB of full docs via
+          Skills (53%).
+        </div>
+        <div class="src">
+          <a
+            href="https://vercel.com/blog/agents-md-outperforms-skills-in-our-agent-evals"
+            target="_blank"
+            >Vercel Blog, Jan 2026</a
+          >
+        </div>
+        <div class="sn">
+          <strong>Speaking Notes:</strong> "There are two ways to get context to
+          an agent. <em>Passive</em> — you push it, it's always in the prompt.
+          <em>Active</em> — the agent pulls it by searching. The problem with
+          active? Vercel found agents skip docs
+          <strong>44% of the time</strong> because they think they already know
+          the answer. Skills alone — same 53% as baseline. With explicit
+          prompting: 79%. But a compressed 8KB AGENTS.md in the prompt?
+          <strong>100% success rate.</strong> Passive removes the decision
+          point. The agent can't skip what's already in its prompt."
+        </div>
+      </section>
+
+      <section class="slide" data-slide="8">
+        <div class="sb">The Why</div>
+        <h1>
+          Research <span class="hl">Snapshot</span
+          ><span class="tm">1.5 min</span>
+        </h1>
+        <p class="st">
+          Vercel shows dramatic gains. ETH Zürich finds marginal effects. The
+          reconciliation is simple.
+        </p>
+        <div class="dr center">
+          <div class="db f">
+            <img
+              src="images/8.svg"
+              alt="Research snapshot: Vercel vs ETH Zürich"
+              class="diagram-img"
+            />
+          </div>
+        </div>
+        <div class="kp">
+          <div class="lb">Practical Takeaway</div>
+          Don't auto-generate AGENTS.md with an LLM — those are redundant.
+          <strong>Write it yourself.</strong> Encode your
+          <em>tribal knowledge</em>: the stuff not in any documentation.
+        </div>
+        <div class="src">
+          <a
+            href="https://vercel.com/blog/agents-md-outperforms-skills-in-our-agent-evals"
+            target="_blank"
+            >Vercel Blog</a
+          >
+        </div>
+        <div class="src">
+          <a href="https://arxiv.org/abs/2602.11988" target="_blank"
+            >arXiv 2602.11988</a
+          >
+        </div>
+        <div class="sn">
+          <strong>Speaking Notes:</strong> "Let's be honest about the research.
+          Vercel showed 53% to 100% — dramatic. ETH Zürich found marginal
+          success-rate impact in a rigorous study. The reconciliation is simple:
+          <strong
+            >context files matter most when knowledge is absent from training
+            data.</strong
+          >
+          Vercel tested <em>new</em> APIs. ETH tested known tasks. Practical
+          takeaway: don't auto-generate these files with an LLM — encode your
+          <em>tribal knowledge</em>, the stuff not in any documentation. That's
+          where the ROI is."
+        </div>
+      </section>
+
+      <!-- ============ PART 3: ARCHITECTURE & CLOSE (3 min) ============ -->
+
+      <section class="slide" data-slide="9">
+        <div class="sb">Architecture</div>
+        <h1>
+          The Five Pillars of <span class="hl">AI-Native Repos</span
+          ><span class="tm">1 min</span>
+        </h1>
+        <p class="st">
+          Unified Knowledge → Scoped Precision → Monorepo Mastery → AI-Readable
+          Docs → Living Maintenance
+        </p>
+        <div class="dr center">
+          <div class="db f">
+            <img
+              src="images/9.svg"
+              alt="Five Pillars of AI-Native Repos diagram"
+              class="diagram-img"
+            />
+          </div>
+        </div>
+        <div class="kp">
+          <div class="lb">Where You Are</div>
+          You already know how to do Pillars 1–3 from the audit slide. Pillars 4
+          &amp; 5 are your this-week and this-month work.
+        </div>
+        <div class="src">
+          <a href="https://agents.md/" target="_blank">AGENTS.md Spec</a>
+        </div>
+        <div class="sn">
+          <strong>Speaking Notes:</strong> "Five pillars frame the whole
+          approach. <strong>Unified Knowledge</strong> — AGENTS.md plus
+          copilot-instructions. <strong>Scoped Precision</strong> — glob-matched
+          rules per framework. <strong>Monorepo Mastery</strong> — nested files
+          with nearest-file precedence. <strong>AI-Readable Docs</strong> —
+          structured headings. <strong>Living Maintenance</strong> — quarterly
+          audits. You already know how to do the first three from the audit
+          slide. Pillars 4 and 5 are your this-week and this-month work."
+        </div>
+      </section>
+
+      <section class="slide" data-slide="10">
+        <div class="sb">Call to Action</div>
+        <h1>
+          Maturity Model & <span class="hl">Call to Action</span
+          ><span class="tm">2 min</span>
+        </h1>
+        <p class="st">
+          Where is your repo today? Most teams are at Level 1. Getting to Level
+          3 takes an afternoon.
+        </p>
+        <div class="dr center">
+          <div class="db f">
+            <img
+              src="images/10a.svg"
+              alt="Repository readiness maturity model"
               class="diagram-img"
             />
           </div>
@@ -1163,127 +896,22 @@
           </div>
         </div>
         <div class="sn">
-          <strong>Speaking Notes:</strong> "Three time horizons.
-          <strong>Today</strong> — 15 minutes — create AGENTS.md, add
-          copilot-instructions.md, run the audit. <strong>This week</strong> —
-          scope your framework rules, add monorepo routing, measure the
-          before/after. <strong>This month</strong> — explore Skills and MCP,
-          set up quarterly audits, start tracking CI pass rates. The difference
-          is night and day. Once the repo is shaped correctly, AI agents stop
-          guessing and start delivering."
+          <strong>Speaking Notes:</strong> "Where is your repo today? Most teams
+          are at Level 1 — it builds and tests run. Getting to Level 2 takes 15
+          minutes. Level 3 takes an afternoon. That's where the biggest ROI is.
+          Three time horizons: <strong>Today</strong> — create AGENTS.md, add
+          copilot-instructions, run the audit. <strong>This week</strong> —
+          scope framework rules, measure before/after.
+          <strong>This month</strong> — explore Skills and MCP, set up quarterly
+          audits. The difference is night and day. Questions?"
         </div>
       </section>
 
-      <section class="slide" data-slide="19">
-        <div class="sb">Appendix A</div>
-        <h1>Appendix A: Key Metrics <span class="hl">Summary</span></h1>
-        <p class="st">
-          Where agent failures originate — context blindness dominates at 44%.
-        </p>
-        <div class="dr center">
-          <div class="db c">
-            <img
-              src="images/18b.svg"
-              alt="Where agent failures come from pie chart"
-              class="diagram-img"
-            />
-          </div>
-          <div style="flex: 1; min-width: 260px">
-            <div class="sc" style="margin-bottom: 10px">
-              <div class="n">44%</div>
-              <div class="l">
-                Context Blindness — no grounded context provided
-              </div>
-            </div>
-            <div class="sc" style="margin-bottom: 10px">
-              <div class="n">23%</div>
-              <div class="l">Decision Gap — agent didn't search for docs</div>
-            </div>
-            <div class="sc" style="margin-bottom: 10px">
-              <div class="n">18%</div>
-              <div class="l">Context Rot — window overflow discards rules</div>
-            </div>
-            <div class="sc">
-              <div class="n">15%</div>
-              <div class="l">Hallucination — parametric knowledge error</div>
-            </div>
-          </div>
-        </div>
-        <div class="sn">
-          The majority of agent failures (67%) stem from context-related issues
-          that passive steering directly addresses: context blindness and the
-          decision gap.
-        </div>
-      </section>
+      <!-- ============ REFERENCES ============ -->
 
-      <section class="slide" data-slide="20">
-        <div class="sb">Appendix B</div>
-        <h1>
-          Appendix B: Context File Impact <span class="hl">by Scenario</span>
-        </h1>
-        <p class="st">
-          When context files help most: high project specificity + knowledge
-          absent from training data.
-        </p>
-        <div class="dr">
-          <div class="db f">
-            <img
-              src="images/18c.svg"
-              alt="Context file impact by scenario quadrant chart"
-              class="diagram-img"
-            />
-          </div>
-        </div>
-        <div class="kp">
-          <div class="lb">Interpretation</div>
-          Top-right quadrant = <strong>maximum AGENTS.md impact</strong>.
-          Bottom-left = minimal value. This explains the Vercel vs ETH Zürich
-          discrepancy.
-        </div>
-        <div class="src">
-          <a
-            href="https://vercel.com/blog/agents-md-outperforms-skills-in-our-agent-evals"
-            target="_blank"
-            >Vercel Blog</a
-          >
-        </div>
-        <div class="src">
-          <a href="https://arxiv.org/abs/2602.11988" target="_blank"
-            >arXiv 2602.11988</a
-          >
-        </div>
-        <div class="sn">
-          The quadrant chart reconciles the Vercel and ETH Zürich results.
-          Vercel tested in the top-right quadrant (new APIs, high specificity).
-          ETH tested mostly in the lower-left.
-        </div>
-      </section>
-
-      <!-- <section class="slide" data-slide="21">
-        <div class="sb">Appendix C</div>
-        <h1>Appendix C: Full Presentation <span class="hl">Timeline</span></h1>
-        <p class="st">
-          20 minutes across 5 sections: Opening, Core Concepts, Architecture,
-          Evidence &amp; Action, Closing.
-        </p>
-        <div class="dr center">
-          <div class="db f">
-            <img
-              src="images/18d.svg"
-              alt="Full presentation timeline gantt chart"
-              class="diagram-img"
-            />
-          </div>
-        </div>
-        <div class="sn">
-          The timeline is structured for a 20-minute slot with natural
-          transitions between the five major sections.
-        </div>
-      </section> -->
-
-      <section class="slide" data-slide="22">
+      <section class="slide" data-slide="11">
         <div class="sb">References</div>
-        <h1><span class="hl">Key Citations</span> & Sources</h1>
+        <h1><span class="hl">Key Citations</span> &amp; Sources</h1>
         <p class="st">
           Primary research, specifications, and documentation referenced
           throughout this talk.
@@ -1345,19 +973,311 @@
               >github.blog/.../how-to-write-a-great-agents-md...</a
             >
           </li>
-          <li>
-            <span class="ct">[7] Structured README Headings</span> —
-            Machine-readable documentation via structured headings for AI
-            navigation<br /><a
-              href="https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax"
-              target="_blank"
-              >docs.github.com/writing-and-formatting</a
-            >
-          </li>
         </ul>
         <div class="sn">
           All citations are clickable. The two most critical papers are the
           Vercel blog post (industry) and the ETH Zürich arXiv paper (academic).
+        </div>
+      </section>
+
+      <!-- ============ APPENDIX SLIDES ============ -->
+
+      <section class="slide" data-slide="12">
+        <div class="sb">Appendix A</div>
+        <h1>Context Rot — The <span class="hl">Silent Killer</span></h1>
+        <p class="st">
+          Even million-token windows have a ticking time bomb. Agents silently
+          auto-compact — your conventions are the first things discarded.
+        </p>
+        <div class="dr center">
+          <div class="db f">
+            <img
+              src="images/11a.svg"
+              alt="Context Window zones diagram"
+              class="diagram-img"
+            />
+          </div>
+        </div>
+        <div class="kp">
+          <div class="lb">Why This Matters</div>
+          The code compiles. Tests might pass. But it silently violates your
+          architecture. This is why we need <strong>structured context</strong>.
+        </div>
+        <div class="sn">
+          <strong>Speaking Notes:</strong> "Even with million-token context
+          windows, there's a ticking time bomb: <em>context rot</em>. As the
+          window fills, agents silently auto-compact. Your project conventions —
+          the first things discarded. The agent doesn't tell you. The code
+          compiles. Tests might pass. But it violates your architecture. This is
+          why we need <em>structured</em> context, not just throwing everything
+          into the window."
+        </div>
+      </section>
+
+      <section class="slide" data-slide="13">
+        <div class="sb">Appendix B</div>
+        <h1>Anthropic's <span class="hl">Progressive Disclosure</span></h1>
+        <p class="st">
+          Three-level loading: YAML frontmatter → SKILL.md body → Linked
+          resources. Hundreds of skills, minimal token overhead.
+        </p>
+        <div class="dr center">
+          <div class="db f">
+            <img
+              src="images/11b.svg"
+              alt="Progressive Disclosure three-level loading diagram"
+              class="diagram-img"
+            />
+          </div>
+        </div>
+        <div class="src">
+          <a
+            href="https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices"
+            target="_blank"
+            >Anthropic Skills Guide</a
+          >
+        </div>
+        <div class="sn">
+          <strong>Speaking Notes:</strong> "Anthropic's Skills framework is the
+          gold standard for progressive disclosure. Level 1 — just the YAML
+          frontmatter, about 100 tokens — is <em>always</em> in the system
+          prompt. Level 2 — the full SKILL.md body — loads only on match. Level
+          3 — reference files — load on demand. Hundreds of skills, minimal
+          token overhead."
+        </div>
+      </section>
+
+      <section class="slide" data-slide="14">
+        <div class="sb">Appendix C</div>
+        <h1>The MCP + Skills <span class="hl">Architecture</span></h1>
+        <p class="st">
+          MCP provides capabilities (the kitchen). Skills provide workflows (the
+          recipes). Together: reliable, scalable AI development.
+        </p>
+        <div class="dr center">
+          <div class="db f">
+            <img
+              src="images/11c.svg"
+              alt="MCP + Skills Architecture diagram"
+              class="diagram-img"
+            />
+          </div>
+        </div>
+        <div class="sn">
+          <strong>Speaking Notes:</strong> "MCP gives you the kitchen — tools,
+          ingredients, equipment. Skills give you the recipes. Without skills,
+          users connect an MCP and ask 'now what?' With skills, workflows
+          activate automatically."
+        </div>
+      </section>
+
+      <section class="slide" data-slide="15">
+        <div class="sb">Appendix D</div>
+        <h1>Copilot vs. Devin — <span class="hl">Two Architectures</span></h1>
+        <p class="st">
+          IDE plugin (sub-second, surgical) vs. autonomous cloud agent (full VM,
+          large-scale). Complementary, not competing.
+        </p>
+        <div class="dr center">
+          <div class="db f">
+            <img
+              src="images/11d.svg"
+              alt="GitHub Copilot vs Devin architecture diagram"
+              class="diagram-img"
+            />
+          </div>
+        </div>
+        <div class="sn">
+          <strong>Speaking Notes:</strong> "Two leading tools, two philosophies.
+          Copilot is the <em>silent partner</em> — low latency, IDE-native.
+          Devin is the <em>autonomous engineer</em> — full VM, indexes your
+          entire codebase. They're complementary. Both read AGENTS.md."
+        </div>
+      </section>
+
+      <section class="slide" data-slide="16">
+        <div class="sb">Appendix E</div>
+        <h1>
+          <span class="hl">Nearest-File Precedence</span>
+        </h1>
+        <p class="st">
+          The root AGENTS.md routes. Each package overrides. Zero context
+          leakage between domains.
+        </p>
+        <div class="dr center">
+          <div class="db f">
+            <img
+              src="images/11e.svg"
+              alt="Nearest-file precedence diagram"
+              class="diagram-img"
+            />
+          </div>
+        </div>
+        <div class="sn">
+          <strong>Speaking Notes:</strong> "In monorepos, nearest-file
+          precedence is everything. The root AGENTS.md acts as a router. Each
+          package has its own. Zero context leakage between domains."
+        </div>
+      </section>
+
+      <section class="slide" data-slide="17">
+        <div class="sb">Appendix F</div>
+        <h1>The Hybrid <span class="hl">Strategy Stack</span></h1>
+        <p class="st">
+          Five layers from foundation (passive, always-present) to large-scale
+          active navigation. Build from the bottom up.
+        </p>
+        <div class="dr center">
+          <div class="db f">
+            <img
+              src="images/11f.svg"
+              alt="Hybrid strategy stack diagram"
+              class="diagram-img"
+            />
+          </div>
+        </div>
+        <div class="sn">
+          <strong>Speaking Notes:</strong> "Five layers from foundation to
+          large-scale navigation. Build from the bottom up. Most teams only need
+          the first two layers to see massive improvements."
+        </div>
+      </section>
+
+      <section class="slide" data-slide="18">
+        <div class="sb">Appendix G</div>
+        <h1>The Passive Steering <span class="hl">Workflow</span></h1>
+        <p class="st">
+          From file open → glob match → context merge → deterministic output.
+        </p>
+        <div class="dr center">
+          <div class="db f">
+            <img
+              src="images/11g.svg"
+              alt="Passive steering workflow sequence diagram"
+              class="diagram-img"
+            />
+          </div>
+        </div>
+        <div class="sn">
+          <strong>Speaking Notes:</strong> "Developer opens a TSX file. The
+          context engine silently matches globs, loads the nearest AGENTS.md,
+          merges everything. By the time the developer types a request, the
+          agent already has every convention. No searching. No guessing."
+        </div>
+      </section>
+
+      <section class="slide" data-slide="19">
+        <div class="sb">Appendix H</div>
+        <h1>The Complete <span class="hl">Context Architecture</span></h1>
+        <p class="st">
+          Three layers → one agent → deterministic, convention-compliant code.
+        </p>
+        <div class="dr center">
+          <div class="db f">
+            <img
+              src="images/11h.svg"
+              alt="Complete context architecture diagram"
+              class="diagram-img"
+            />
+          </div>
+        </div>
+        <div class="sn">
+          <strong>Speaking Notes:</strong> "The complete architecture: three
+          layers feeding into the agent. Passive context — always in the prompt.
+          Active retrieval — on-demand. Skills — progressive disclosure.
+          Together: deterministic, convention-compliant code."
+        </div>
+      </section>
+
+      <section class="slide" data-slide="20">
+        <div class="sb">Appendix I</div>
+        <h1>Key Metrics <span class="hl">Summary</span></h1>
+        <p class="st">
+          Where agent failures originate — context blindness dominates at 44%.
+        </p>
+        <div class="dr center">
+          <div class="db c">
+            <img
+              src="images/11i.svg"
+              alt="Where agent failures come from pie chart"
+              class="diagram-img"
+            />
+          </div>
+          <div style="flex: 1; min-width: 260px">
+            <div class="sc" style="margin-bottom: 10px">
+              <div class="n">44%</div>
+              <div class="l">
+                Context Blindness — no grounded context provided
+              </div>
+            </div>
+            <div class="sc" style="margin-bottom: 10px">
+              <div class="n">23%</div>
+              <div class="l">Decision Gap — agent didn't search for docs</div>
+            </div>
+            <div class="sc" style="margin-bottom: 10px">
+              <div class="n">18%</div>
+              <div class="l">Context Rot — window overflow discards rules</div>
+            </div>
+            <div class="sc">
+              <div class="n">15%</div>
+              <div class="l">Hallucination — parametric knowledge error</div>
+            </div>
+          </div>
+        </div>
+        <div class="sn">
+          The majority of agent failures (67%) stem from context-related issues
+          that passive steering directly addresses.
+        </div>
+      </section>
+
+      <section class="slide" data-slide="21">
+        <div class="sb">Appendix J</div>
+        <h1>Context File Impact <span class="hl">by Scenario</span></h1>
+        <p class="st">
+          When context files help most: high project specificity + knowledge
+          absent from training data.
+        </p>
+        <div class="dr">
+          <div class="db f">
+            <img
+              src="images/11j.svg"
+              alt="Context file impact by scenario quadrant chart"
+              class="diagram-img"
+            />
+          </div>
+        </div>
+        <div class="kp">
+          <div class="lb">Interpretation</div>
+          Top-right quadrant = <strong>maximum AGENTS.md impact</strong>.
+          Bottom-left = minimal value. This explains the Vercel vs ETH Zürich
+          discrepancy.
+        </div>
+        <div class="sn">
+          The quadrant chart reconciles the Vercel and ETH Zürich results.
+          Vercel tested in the top-right quadrant (new APIs, high specificity).
+          ETH tested mostly in the lower-left.
+        </div>
+      </section>
+
+      <section class="slide" data-slide="22">
+        <div class="sb">Appendix K</div>
+        <h1>Full Presentation <span class="hl">Timeline</span></h1>
+        <p class="st">
+          15 minutes across 3 sections: Practical, The Why, Close — plus
+          Q&amp;A.
+        </p>
+        <div class="dr center">
+          <div class="db f">
+            <img
+              src="images/11k.svg"
+              alt="Full presentation timeline"
+              class="diagram-img"
+            />
+          </div>
+        </div>
+        <div class="sn">
+          The timeline is structured for a 20-minute slot: 15 minutes of content
+          with 5+ minutes for Q&amp;A.
         </div>
       </section>
     </div>
