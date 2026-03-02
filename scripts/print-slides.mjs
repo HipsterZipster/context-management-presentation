@@ -10,15 +10,19 @@ if (!url || !out) {
   process.exit(1);
 }
 
+const W = 1920;
+const H = 1080;
+
 (async () => {
   mkdirSync(dirname(out), { recursive: true });
   const browser = await chromium.launch();
   const page = await browser.newPage({
-    viewport: { width: 1280, height: 720 },
+    viewport: { width: W, height: H },
+    deviceScaleFactor: 1,
   });
   await page.goto(url, { waitUntil: "networkidle" });
 
-  // Wait for Mermaid to finish rendering
+  // Wait for images/SVGs to finish rendering
   await page.waitForTimeout(5000);
 
   const totalSlides = await page.evaluate(
@@ -26,13 +30,13 @@ if (!url || !out) {
   );
   console.log(`Found ${totalSlides} slides`);
 
-  const pdfPaths = [];
+  const pngPaths = [];
 
   for (let i = 0; i < totalSlides; i++) {
     await page.evaluate((idx) => go(idx), i);
     await page.waitForTimeout(500);
 
-    // Hide UI elements for cleaner export
+    // Hide UI chrome for clean export
     await page.evaluate(() => {
       document
         .querySelectorAll(".sn")
@@ -43,19 +47,15 @@ if (!url || !out) {
       document.getElementById("progress").style.display = "none";
     });
 
-    const path = `/tmp/slide-${String(i + 1).padStart(2, "0")}.pdf`;
-    await page.pdf({
-      path,
-      landscape: true,
-      width: "1280px",
-      height: "720px",
-      printBackground: true,
-      margin: { top: 0, right: 0, bottom: 0, left: 0 },
+    const pngPath = `/tmp/slide-${String(i + 1).padStart(2, "0")}.png`;
+    await page.screenshot({
+      path: pngPath,
+      clip: { x: 0, y: 0, width: W, height: H },
     });
-    pdfPaths.push(path);
+    pngPaths.push(pngPath);
     console.log(`  Slide ${i + 1}/${totalSlides} exported`);
 
-    // Restore UI elements
+    // Restore UI
     await page.evaluate(() => {
       document.querySelectorAll(".sn").forEach((n) => (n.style.display = ""));
       document.getElementById("tb").style.display = "";
@@ -67,16 +67,22 @@ if (!url || !out) {
 
   await browser.close();
 
+  // Convert PNGs to a single PDF using sips + join
   try {
+    // Convert each PNG to a single-page PDF
+    const pdfPaths = pngPaths.map((png) => {
+      const pdf = png.replace(".png", ".pdf");
+      execSync(`sips -s format pdf "${png}" --out "${pdf}"`);
+      return pdf;
+    });
+
     const joinCmd = pdfPaths.map((p) => `"${p}"`).join(" ");
     execSync(
       `"/System/Library/Automator/Combine PDF Pages.action/Contents/MacOS/join" -o "${out}" ${joinCmd}`,
     );
     console.log(`\n✅ Merged ${totalSlides} slides into ${out}`);
-  } catch {
-    console.log(`\n⚠️  Individual PDFs saved to /tmp/slide-*.pdf`);
-    console.log(
-      `    Merge with: /System/Library/Automator/Combine\\ PDF\\ Pages.action/Contents/MacOS/join -o ${out} /tmp/slide-*.pdf`,
-    );
+  } catch (e) {
+    console.error(e.message);
+    console.log(`\n⚠️  Individual PNGs saved to /tmp/slide-*.png`);
   }
 })();
