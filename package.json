@@ -4,11 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "pdf:slides": "node scripts/print-slides.mjs http://localhost:8000/context-engineering-slides.html generated-context-engineering-slides.pdf",
+    "generate-diagrams": "node scripts/generate-mermaid.js",
+    "generate-markdown": "node scripts/generate-rendered-md.mjs",
+    "generate-pdf": "node scripts/print-slides.mjs http://localhost:8000/context-engineering-slides.html generated-context-engineering-slides.pdf",
     "pdf:infographic": "node scripts/print-slides.mjs http://localhost:8000/infographic-outline.html generated-outline.pdf",
     "pptx:gemini": "node scripts/generate-gemini-pptx.mjs",
-    "generate-mermaid-neo": "node scripts/generate-mermaid.js"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
