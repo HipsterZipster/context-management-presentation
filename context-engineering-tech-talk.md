@@ -296,14 +296,6 @@ graph TB
     Copilot ---|"Complementary<br/>Not Competing"| Devin
 ```
 
-```mermaid
-radar-beta
-    title Copilot vs Devin — Architectural Profile
-    axis Autonomy, Setup Speed, Context Precision, Large Refactors, Latency
-    curve a["Copilot"] { 40, 95, 90, 50, 95 }
-    curve b["Devin"] { 95, 60, 85, 95, 40 }
-```
-
 > **Speaking Notes:**
 > "Two leading tools, two opposite philosophies. Copilot is the _silent partner_ — low latency, surgically precise, lives in your IDE. Devin is the _autonomous engineer_ — give it a task, it spins up a VM, indexes your entire codebase, and works independently. They're complementary. Use Copilot for real-time flow. Use Devin for large-scale refactors. Both read AGENTS.md. Both benefit from the five pillars."
 
@@ -396,11 +388,11 @@ sequenceDiagram
     Dev->>IDE: Opens Button.tsx
     IDE->>Engine: File matches "**/*.tsx"
 
-    Note over Engine: Passive load set:<br/>AGENTS.md<br/>copilot-instructions.md<br/>react.instructions.md (glob match)<br/>nearest package AGENTS.md
+    Note over Engine: Passive load set:<br/>AGENTS.md<br/>copilot-instructions.md<br/>react.instructions.md (glob)<br/>nearest package AGENTS.md
     Engine->>Agent: Inject merged context into system prompt
 
     Dev->>Agent: "Add a loading state to this button"
-    Agent-->>Dev: ✅ Correct code (React FC, TS interface, UITK, naming conventions)
+    Agent-->>Dev: ✅ Correct code (React FC, TS interface, UI, naming conventions)
 ```
 
 > **Speaking Notes:**

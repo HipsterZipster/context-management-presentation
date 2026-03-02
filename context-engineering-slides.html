@@ -64,7 +64,7 @@
         opacity: 0.5;
       }
       .tm {
-        display: inline-block;
+        display: none !important;
         background: var(--sf2);
         border: 1px solid var(--bd);
         border-radius: 6px;
@@ -786,167 +786,13 @@
           IDE plugin (sub-second, surgical) vs. autonomous cloud agent (full VM,
           large-scale). Complementary, not competing.
         </p>
-        <div class="g2 center">
-          <div class="db">
+        <div class="dr center">
+          <div class="db f">
             <img
-              src="images/9.svg"
+              src="images/9a.svg"
               alt="GitHub Copilot vs Devin architecture diagram"
               class="diagram-img"
             />
-          </div>
-          <div class="db">
-            <table class="cmp-table">
-              <tr>
-                <th>Dimension</th>
-                <th style="color: #818cf8">Copilot</th>
-                <th style="color: var(--cy)">Devin</th>
-              </tr>
-              <tr>
-                <td>Autonomy</td>
-                <td>
-                  <div
-                    class="bar"
-                    style="
-                      background: linear-gradient(
-                        90deg,
-                        #818cf8 40%,
-                        transparent 40%
-                      );
-                    "
-                  ></div>
-                  <span class="bar-label">40</span>
-                </td>
-                <td>
-                  <div
-                    class="bar"
-                    style="
-                      background: linear-gradient(
-                        90deg,
-                        var(--cy) 95%,
-                        transparent 95%
-                      );
-                    "
-                  ></div>
-                  <span class="bar-label">95</span>
-                </td>
-              </tr>
-              <tr>
-                <td>Setup Speed</td>
-                <td>
-                  <div
-                    class="bar"
-                    style="
-                      background: linear-gradient(
-                        90deg,
-                        #818cf8 95%,
-                        transparent 95%
-                      );
-                    "
-                  ></div>
-                  <span class="bar-label">95</span>
-                </td>
-                <td>
-                  <div
-                    class="bar"
-                    style="
-                      background: linear-gradient(
-                        90deg,
-                        var(--cy) 60%,
-                        transparent 60%
-                      );
-                    "
-                  ></div>
-                  <span class="bar-label">60</span>
-                </td>
-              </tr>
-              <tr>
-                <td>Context Precision</td>
-                <td>
-                  <div
-                    class="bar"
-                    style="
-                      background: linear-gradient(
-                        90deg,
-                        #818cf8 90%,
-                        transparent 90%
-                      );
-                    "
-                  ></div>
-                  <span class="bar-label">90</span>
-                </td>
-                <td>
-                  <div
-                    class="bar"
-                    style="
-                      background: linear-gradient(
-                        90deg,
-                        var(--cy) 85%,
-                        transparent 85%
-                      );
-                    "
-                  ></div>
-                  <span class="bar-label">85</span>
-                </td>
-              </tr>
-              <tr>
-                <td>Large Refactors</td>
-                <td>
-                  <div
-                    class="bar"
-                    style="
-                      background: linear-gradient(
-                        90deg,
-                        #818cf8 50%,
-                        transparent 50%
-                      );
-                    "
-                  ></div>
-                  <span class="bar-label">50</span>
-                </td>
-                <td>
-                  <div
-                    class="bar"
-                    style="
-                      background: linear-gradient(
-                        90deg,
-                        var(--cy) 95%,
-                        transparent 95%
-                      );
-                    "
-                  ></div>
-                  <span class="bar-label">95</span>
-                </td>
-              </tr>
-              <tr>
-                <td>Latency</td>
-                <td>
-                  <div
-                    class="bar"
-                    style="
-                      background: linear-gradient(
-                        90deg,
-                        #818cf8 95%,
-                        transparent 95%
-                      );
-                    "
-                  ></div>
-                  <span class="bar-label">95</span>
-                </td>
-                <td>
-                  <div
-                    class="bar"
-                    style="
-                      background: linear-gradient(
-                        90deg,
-                        var(--cy) 40%,
-                        transparent 40%
-                      );
-                    "
-                  ></div>
-                  <span class="bar-label">40</span>
-                </td>
-              </tr>
-            </table>
           </div>
         </div>
         <div class="src">
@@ -981,18 +827,11 @@
           Vercel shows dramatic gains. ETH Zürich finds marginal effects. The
           reconciliation reveals when context files actually help.
         </p>
-        <div class="g2">
-          <div class="db">
+        <div class="dr center">
+          <div class="db f">
             <img
-              src="images/10a.svg"
+              src="images/10.svg"
               alt="Vercel vs ETH Zürich research reconciliation"
-              class="diagram-img"
-            />
-          </div>
-          <div class="db">
-            <img
-              src="images/10b.svg"
-              alt="Key ETH Zürich findings"
               class="diagram-img"
             />
           </div>
