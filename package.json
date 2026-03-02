@@ -6,10 +6,10 @@
   "scripts": {
     "generate:all": "pnpm run serve & SERVER_PID=$! && sleep 2 && pnpm run generate:diagrams && pnpm run generate:markdown && pnpm run generate:speaker-notes && pnpm run generate:pdf; kill $SERVER_PID",
     "generate:diagrams": "node scripts/generate-mermaid.js",
-    "generate:infographic-pdf": "node scripts/print-slides.mjs http://localhost:8000/infographic-outline.html generated-outline.pdf",
+    "generate:infographic-pdf": "node scripts/print-slides.mjs http://localhost:8000/infographic-outline.html gen-outline.pdf",
     "generate:markdown": "node scripts/generate-rendered-md.mjs",
     "generate:speaker-notes": "node scripts/generate-speaker-notes.mjs",
-    "generate:pdf": "node scripts/print-slides.mjs http://localhost:8000/context-engineering-slides.html generated-context-engineering-slides.pdf",
+    "generate:pdf": "node scripts/print-slides.mjs http://localhost:8000/context-engineering-slides.html gen-context-engineering-slides.pdf",
     "serve": "http-server . -p 8000 -c-1",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

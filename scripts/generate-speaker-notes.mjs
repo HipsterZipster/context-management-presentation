@@ -18,7 +18,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, "..");
 
 const INPUT = resolve(ROOT, "context-engineering-tech-talk.md");
-const OUTPUT = resolve(ROOT, "generated-context-engineering-speaker-notes.md");
+const OUTPUT = resolve(ROOT, "gen-context-engineering-speaker-notes.md");
 
 const content = readFileSync(INPUT, "utf8");
 
