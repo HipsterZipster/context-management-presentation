@@ -701,7 +701,7 @@
           <span class="hl">Why Passive Wins</span><span class="tm">2 min</span>
         </h1>
         <p class="st">
-          Passive (push) vs. Active (pull). When agents decide whether to
+          Passive steering vs. active retrieval. When agents decide whether to
           search, they skip docs 44% of the time.
         </p>
         <div class="g2">
@@ -735,12 +735,16 @@
         </div>
         <div class="sn">
           <strong>Speaking Notes:</strong> "There are two ways to get context to
-          an agent. <em>Passive</em> — you push it, it's always in the prompt.
-          <em>Active</em> — the agent pulls it by searching. The problem with
-          active? Vercel found agents skip docs
-          <strong>44% of the time</strong> because they think they already know
-          the answer. Skills alone — same 53% as baseline. With explicit
-          prompting: 79%. But a compressed 8KB AGENTS.md in the prompt?
+          an agent. <em>Passive steering</em> — the push model. Your AGENTS.md,
+          copilot-instructions.md, and scoped
+          <code>*.instructions.md</code> files all get injected directly into
+          the system prompt. They're always present. <em>Active retrieval</em> —
+          the pull model. The agent decides to search using tools like
+          <code>read_file</code>, <code>grep_search</code>, or semantic/code
+          search. The critical word is <em>decides</em>. Vercel found agents
+          skip docs <strong>44% of the time</strong> because they think they
+          already know the answer. Skills only — same 53% as baseline. With
+          explicit prompting: 79%. But a compressed 8KB AGENTS.md in the prompt?
           <strong>100% success rate.</strong> Passive removes the decision
           point. The agent can't skip what's already in its prompt."
         </div>
@@ -753,8 +757,8 @@
           ><span class="tm">1.5 min</span>
         </h1>
         <p class="st">
-          Vercel shows dramatic gains. ETH Zürich finds marginal effects. The
-          reconciliation is simple.
+          Vercel shows dramatic gains. ETH Zürich finds marginal effects. A
+          practical interpretation is more useful than a simple reconciliation.
         </p>
         <div class="dr center">
           <div class="db f">
@@ -786,7 +790,8 @@
         <div class="sn">
           <strong>Speaking Notes:</strong> "Let's be honest about the research.
           Vercel showed 53% to 100% — dramatic. ETH Zürich found marginal
-          success-rate impact in a rigorous study. The reconciliation is simple:
+          success-rate impact in a rigorous study. A practical interpretation
+          is:
           <strong
             >context files matter most when knowledge is absent from training
             data.</strong
@@ -830,12 +835,13 @@
         <div class="sn">
           <strong>Speaking Notes:</strong> "Five pillars frame the whole
           approach. <strong>Unified Knowledge</strong> — AGENTS.md plus
-          copilot-instructions. <strong>Scoped Precision</strong> — glob-matched
-          rules per framework. <strong>Monorepo Mastery</strong> — nested files
-          with nearest-file precedence. <strong>AI-Readable Docs</strong> —
-          structured headings. <strong>Living Maintenance</strong> — quarterly
-          audits. You already know how to do the first three from the audit
-          slide. Pillars 4 and 5 are your this-week and this-month work."
+          copilot-instructions.md. <strong>Scoped Precision</strong> —
+          glob-matched rules per framework. <strong>Monorepo Mastery</strong> —
+          nested files with nearest-file precedence.
+          <strong>AI-Readable Docs</strong> — structured headings.
+          <strong>Living Maintenance</strong> — quarterly audits. You already
+          know how to do the first three from the audit slide. Pillars 4 and 5
+          are your this-week and this-month work."
         </div>
       </section>
 
@@ -860,14 +866,14 @@
           <div class="db f">
             <img
               src="images/10b.svg"
-              alt="Call to action: Today, This Week, This Month"
+              alt="Call to action: Do Today, This Week, This Month"
               class="diagram-img"
             />
           </div>
         </div>
         <div class="g3" style="margin: 14px 0">
           <div class="kp" style="border-color: var(--gn)">
-            <div class="lb" style="color: var(--gn)">Today — 15 min</div>
+            <div class="lb" style="color: var(--gn)">Do Today — 15 min</div>
             Create AGENTS.md, copilot-instructions.md, run the audit
           </div>
           <div class="kp" style="border-color: var(--yl)">
@@ -883,10 +889,10 @@
           <strong>Speaking Notes:</strong> "Where is your repo today? Most teams
           are at Level 1 — it builds and tests run. Getting to Level 2 takes 15
           minutes. Level 3 takes an afternoon. That's where the biggest ROI is.
-          Three time horizons: <strong>Today</strong> — create AGENTS.md, add
-          copilot-instructions, run the audit. <strong>This week</strong> —
-          scope framework rules, measure before/after.
-          <strong>This month</strong> — explore Skills and MCP, set up quarterly
+          Three time horizons: <strong>Do Today</strong> — create AGENTS.md, add
+          copilot-instructions.md, run the audit. <strong>This Week</strong>
+          — scope framework rules, measure before/after.
+          <strong>This Month</strong> — explore Skills and MCP, set up quarterly
           audits. The difference is night and day. Questions?"
         </div>
       </section>

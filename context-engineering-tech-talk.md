@@ -47,7 +47,7 @@ graph LR
         direction LR
         F1["<b>AGENTS.md</b><br/><i>Project-level context</i>"]
         F2["<b>copilot-instructions.md</b><br/><i>Global coding standards</i>"]
-        F3["<b>.instructions.md</b><br/><i>Scoped rules per framework</i>"]
+        F3["<b>*.instructions.md</b><br/><i>Scoped rules per framework</i>"]
         F4["<b>Skills &amp; Prompts</b><br/><i>Reusable workflows</i>"]
     end
 
@@ -63,7 +63,7 @@ graph LR
 >
 > Third, **scoped instruction files** — these are `.instructions.md` files inside `.github/instructions/`. Each one has an `applyTo` glob pattern. So you can have `react.instructions.md` with `applyTo: '**/*.tsx'` for React conventions, and `python.instructions.md` with `applyTo: '**/*.py'` for Python rules. The agent only loads the rules relevant to the file you're editing.
 >
-> Fourth, **Skills and Prompts** — these live in `.github/skills/` and `.github/prompts/`. Skills are multi-step workflows the agent can execute — like 'run a code review' or 'scaffold a new API endpoint.' Prompts are team-shared templates so everyone asks the agent the same way. These are your reusable building blocks.
+> Fourth, **Skills and Prompts** — these live in `.github/skills/` and `.github/prompts/`. In `.github/`: `copilot-instructions.md`, `instructions/`, `prompts/`, and `skills/`. Skills are multi-step workflows the agent can execute — like 'run a code review' or 'scaffold a new API endpoint.' Prompts are team-shared templates so everyone asks the agent the same way. These are your reusable building blocks.
 >
 > Together, these four files give the agent everything it needs. Let me show you what goes inside each one."
 
@@ -184,7 +184,7 @@ graph LR
 ```
 
 > **Speaking Notes:**
-> "Here's what this looks like in a real repo. This is 'acme-webapp' — a typical monorepo. At the root: AGENTS.md with your project overview and commands. In .github: copilot-instructions.md for global standards, scoped instruction files for React and Python, pre-made prompts your whole team can share, and a skills folder for reusable agent workflows — things like 'run-code-review' or 'migrate-database'. Each package has its own AGENTS.md for domain-specific rules. The .github folder is the right home for these — it works across Copilot, Windsurf, Cursor, and any other agent that follows the spec."
+> "Here's what this looks like in a real repo. This is 'acme-webapp' — a typical monorepo. At the root: AGENTS.md with your project overview and commands. In `.github/`: `copilot-instructions.md` for global standards, `instructions/` for framework-specific instruction files, `prompts/` for team-shared templates, and `skills/` for reusable agent workflows — things like 'run-code-review' or 'migrate-database'. Each package has its own AGENTS.md for domain-specific rules. The `.github/` folder is the right home for these — it works across Copilot, Windsurf, Cursor, and any other agent that follows the spec."
 
 ---
 
@@ -219,7 +219,7 @@ graph TB
         direction TB
         P1["AGENTS.md"]
         P2["copilot-instructions.md"]
-        P3[".instructions.md files"]
+        P3["*.instructions.md files"]
         P1 & P2 & P3 --> PS["System Prompt<br/><b>Always Present</b>"]
     end
 
@@ -227,7 +227,7 @@ graph TB
         direction TB
         A1["read_file"]
         A2["grep_search"]
-        A3["semantic_search"]
+        A3["semantic/code search"]
         AD{"Agent Decides<br/>What to Search"} --> A1 & A2 & A3
     end
 
@@ -248,9 +248,9 @@ xychart-beta
 > **Speaking Notes:**
 > "There are two ways to get context to an agent, and the diagram on the left shows both.
 >
-> **Passive steering** — the push model. Your AGENTS.md, copilot-instructions.md, and scoped .instructions.md files all get injected directly into the system prompt. They're _always present_. The agent doesn't choose to load them — they're just there.
+> **Passive steering** — the push model. Your AGENTS.md, copilot-instructions.md, and scoped `*.instructions.md` files all get injected directly into the system prompt. They're _always present_. The agent doesn't choose to load them — they're just there.
 >
-> **Active retrieval** — the pull model. The agent decides to search using tools like `read_file`, `grep_search`, or `semantic_search`. The critical word is _decides_. There's a decision point, and Vercel found that agents skip searching **44% of the time** because they think they already know the answer.
+> **Active retrieval** — the pull model. The agent decides to search using tools like `read_file`, `grep_search`, or semantic/code search. The critical word is _decides_. There's a decision point, and Vercel found that agents skip searching **44% of the time** because they think they already know the answer.
 >
 > Now look at the bar chart on the right — this is Vercel's actual eval data from January 2026. Baseline with no context files: 53% task success. Skills only — that's pure active retrieval — same 53%. Skills with explicit prompting: 79%. But a compressed 8KB AGENTS.md injected passively into the prompt? **100% success rate.**
 >
@@ -285,7 +285,7 @@ graph LR
 >
 > On the right, **ETH Zürich's rigorous study** — 138 tasks across 12 repos with 4 different agents. They found marginal success-rate impact. But here's the nuance: they saw +22% improvement in reasoning quality and agents wrote more tests.
 >
-> The diamond in the middle is the reconciliation: _when does it help most?_ Three conditions — first, when knowledge is absent from training data. Second, when you have project-specific conventions the model has never seen. Third, when there's tribal knowledge that's not in any documentation.
+> A practical interpretation is: _when does it help most?_ Three conditions — first, when knowledge is absent from training data. Second, when you have project-specific conventions the model has never seen. Third, when there's tribal knowledge that's not in any documentation.
 >
 > Practical takeaway: don't auto-generate AGENTS.md with an LLM — those are redundant with what's already in the training data. Write it yourself. Encode the stuff that burns people — the non-obvious decisions, the 'we tried X and it broke everything' knowledge. That's where the ROI is."
 
@@ -372,7 +372,7 @@ graph LR
 >
 > The biggest ROI jump is from Level 1 to Level 3 — and you can get there today.
 >
-> The second diagram breaks it into three time horizons with specific action items. **Today, 15 minutes:** create AGENTS.md, add copilot-instructions.md, run the audit from slide 4. **This week:** scope your framework rules with glob patterns, add monorepo routing if applicable, and measure before/after on a real task. **This month:** explore Skills and MCP for advanced workflows, set up quarterly audits to keep files current, and start tracking CI pass rates as your success metric.
+> The second diagram breaks it into three time horizons with specific action items. **Do Today, 15 minutes:** create AGENTS.md, add copilot-instructions.md, run the audit from slide 4. **This Week:** scope your framework rules with glob patterns, add monorepo routing if applicable, and measure before/after on a real task. **This Month:** explore Skills and MCP for advanced workflows, set up quarterly audits to keep files current, and start tracking CI pass rates as your success metric.
 >
 > The difference is night and day. Questions?"
 
@@ -516,7 +516,7 @@ graph TB
         direction LR
         C1["IDE Plugin"]
         C2["~200K Token Window"]
-        C3["Passive: copilot-instructions.md<br/>+ scoped .instructions.md<br/>Active: read_file, semantic_search"]
+        C3["Passive: copilot-instructions.md<br/>+ scoped *.instructions.md<br/>Active: read_file, semantic/code search"]
         C4["⚡ Sub-second latency"]
         C1 --> C2 --> C3 --> C4
     end
@@ -536,7 +536,7 @@ graph TB
 > **Speaking Notes:**
 > "The diagram compares two leading tools side by side.
 >
-> **GitHub Copilot** — top row. It's an IDE plugin with a ~200K token context window. For context loading, it uses _passive_ injection via copilot-instructions.md and scoped .instructions.md files, plus _active_ tools like read_file and semantic_search. Key advantage: sub-second latency. It's your surgical, always-available pair programmer.
+> **GitHub Copilot** — top row. It's an IDE plugin with a ~200K token context window. For context loading, it uses _passive_ injection via copilot-instructions.md and scoped `*.instructions.md` files, plus _active_ tools like read_file and semantic/code search. Key advantage: sub-second latency. It's your surgical, always-available pair programmer.
 >
 > **Cognition Devin** — bottom row. It's a fully autonomous agent with a 10M+ token window. It reads AGENTS.md as an onboarding document and uses Devin Search to index over a million lines of code. Key advantage: it has a full VM with terminal access — it can run your build, execute tests, even deploy.
 >
@@ -579,10 +579,10 @@ graph TD
 
 ```mermaid
 graph LR
-    L5["ACTIVE: Large-Scale Navigation<br/>grep_search, semantic_search, Devin Search<br/><i>Codebase exploration at scale</i>"]
+    L5["ACTIVE: Large-Scale Navigation<br/>grep_search, semantic/code search, Devin Search<br/><i>Codebase exploration at scale</i>"]
     L4["ACTIVE: Vertical Workflows<br/>Anthropic Skills + MCP Integrations<br/><i>Complex multi-step processes</i>"]
     L3["PASSIVE: Documentation Layer<br/>Structured README Headings<br/><i>Machine-discoverable docs</i>"]
-    L2["PASSIVE: Scoped Rules<br/>.instructions.md with applyTo Globs<br/><i>Framework/language conventions</i>"]
+    L2["PASSIVE: Scoped Rules<br/>*.instructions.md with applyTo globs<br/><i>Framework/language conventions</i>"]
     L1["PASSIVE: Foundation<br/>AGENTS.md + copilot-instructions.md<br/><i>Always-available project context</i>"]
 
     L1 --> L2 --> L3 --> L4 --> L5
@@ -593,13 +593,13 @@ graph LR
 >
 > **Layer 1 — Passive Foundation.** AGENTS.md plus copilot-instructions.md. Always-available project context injected into every prompt. This is where you start.
 >
-> **Layer 2 — Passive Scoped Rules.** Your .instructions.md files with `applyTo` globs. Framework and language conventions that activate only for matching file types.
+> **Layer 2 — Passive Scoped Rules.** Your `framework.instructions.md` files with `applyTo` globs. Framework and language conventions that activate only for matching file types.
 >
 > **Layer 3 — Passive Documentation.** Structured README headings that make your docs machine-discoverable. Agents can parse `##` headings to find relevant sections.
 >
 > **Layer 4 — Active Vertical Workflows.** Anthropic Skills plus MCP integrations for complex, multi-step processes like code review pipelines or database migrations.
 >
-> **Layer 5 — Active Large-Scale Navigation.** Tools like grep_search, semantic_search, and Devin Search for exploring large codebases at scale.
+> **Layer 5 — Active Large-Scale Navigation.** Tools like grep_search, semantic/code search, and Devin Search for exploring large codebases at scale.
 >
 > Most teams only need Layers 1 and 2 to see massive improvements. Layers 3–5 are for mature teams scaling to complex workflows."
 
@@ -648,13 +648,13 @@ graph LR
     subgraph PassiveLayer["Passive Context Layer"]
         AGENTS["AGENTS.md"]
         CPI["copilot-instructions.md"]
-        SCOPED[".instructions.md<br/>(glob-matched)"]
+        SCOPED["*.instructions.md<br/>(glob-matched)"]
     end
 
     subgraph ActiveLayer["Active Retrieval Layer"]
         RF["read_file"]
         GS["grep_search"]
-        SS["semantic_search"]
+        SS["semantic/code search"]
         MCP["MCP Servers"]
     end
 
@@ -678,9 +678,9 @@ graph LR
 >
 > At the top left, the developer's request flows into the AI agent. Three context layers feed into the agent simultaneously.
 >
-> **The Passive Context Layer** — AGENTS.md, copilot-instructions.md, and glob-matched .instructions.md files. These are labeled 'Always in prompt' because they're injected every single turn. No decision point, no chance of being skipped.
+> **The Passive Context Layer** — AGENTS.md, copilot-instructions.md, and glob-matched `framework.instructions.md` files. These are labeled 'Always in prompt' because they're injected every single turn. No decision point, no chance of being skipped.
 >
-> **The Active Retrieval Layer** — read_file, grep_search, semantic_search, and MCP servers. These are 'On-demand search' — the agent decides when to use them. Powerful but unreliable as a sole strategy.
+> **The Active Retrieval Layer** — read_file, grep_search, semantic/code search, and MCP servers. These are 'On-demand search' — the agent decides when to use them. Powerful but unreliable as a sole strategy.
 >
 > **The Skills Layer** — three progressive levels from Anthropic's framework. L1 frontmatter is always loaded, L2 SKILL.md loads on match, L3 resources load on demand. This is 'Progressive disclosure' — scaling to hundreds of workflows without token bloat.
 >
@@ -688,10 +688,10 @@ graph LR
 
 ---
 
-## Appendix I: Key Metrics Summary
+## Appendix I: Example Failure Composition
 
 ```mermaid
-pie title "Where Agent Failures Come From"
+pie title "Example Failure Composition"
     "Context Blindness (no grounded context)" : 44
     "Decision Gap (didn't search)" : 23
     "Context Rot (window overflow)" : 18
@@ -699,17 +699,17 @@ pie title "Where Agent Failures Come From"
 ```
 
 > **Speaking Notes:**
-> "The pie chart breaks down where agent failures actually come from.
+> "The pie chart shows an example failure composition for coding agents.
 >
-> The biggest slice — **44% is Context Blindness.** The agent had no grounded context at all. No AGENTS.md, no instructions files, nothing. It guessed based purely on training data and got it wrong. This is the failure that passive context files directly eliminate.
+> The biggest slice — **44% is Context Blindness.** The agent had no grounded context at all. No AGENTS.md, no instructions files, nothing. It guessed based purely on training data and got it wrong. This is the kind of failure that passive context files directly address.
 >
-> **23% is the Decision Gap.** The context _existed_ somewhere in the repo, but the agent decided not to search for it. It thought it already knew the answer. This is the 'agents skip docs 44% of the time' problem from Vercel's data.
+> **23% is the Decision Gap.** The context _existed_ somewhere in the repo, but the agent decided not to search for it. It thought it already knew the answer. This is related to the 'agents skip docs 44% of the time' problem from Vercel's data.
 >
 > **18% is Context Rot.** The agent _had_ the right context earlier in the conversation, but as the window filled up, auto-compaction discarded it. The four-zone diagram from Appendix A explains this.
 >
 > **15% is true Hallucination.** Parametric knowledge error — the model's training data was simply wrong. This is the only category that context files can't fix.
 >
-> The key insight: 67% of failures — Context Blindness plus Decision Gap — are directly addressed by passive steering. Add another 18% from Context Rot that structured files mitigate, and you're addressing 85% of agent failures."
+> The key insight is directional rather than precise: Context Blindness and the Decision Gap are both areas where passive steering helps, and Context Rot is another area that structured files can mitigate."
 
 ---
 
@@ -769,18 +769,5 @@ flowchart LR
 > **Q&A — 5+ minutes.** Open floor. The appendix slides are available for deep-dive questions on specific topics.
 >
 > Total: 15 minutes of content designed for a 20-minute slot."
-
----
-
-## Key Citations
-
-- **Vercel Blog:** _AGENTS.md outperforms skills in our agent evals_ (Jan 27, 2026) — https://vercel.com/blog/agents-md-outperforms-skills-in-our-agent-evals
-- **arXiv 2602.11988:** _Evaluating AGENTS.md: Are Repository-Level Context Files Helpful for Coding Agents?_ — https://arxiv.org/abs/2602.11988
-- **AGENTS.md Official Specification** — https://agents.md/
-- **GitHub Docs:** _Adding custom instructions for GitHub Copilot_ — https://docs.github.com/copilot/customizing-copilot/adding-custom-instructions-for-github-copilot
-- **Anthropic:** _The Complete Guide to Building Skills for Claude_ — https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices
-- **GitHub Blog:** _How to write a great agents.md_ — https://github.blog/ai-and-ml/github-copilot/how-to-write-a-great-agents-md-lessons-from-over-2500-repositories/
-
----
 
 _Tech Talk: "Context Engineering: Building AI-Native Repositories" — ~15 minutes with 11 main slides + 11 appendix slides, 20+ Mermaid diagrams. Designed for Q&A time._
