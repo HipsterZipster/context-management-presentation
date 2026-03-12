@@ -192,27 +192,24 @@ graph LR
 
 ```mermaid
 graph TB
-    subgraph Top["Knowledge Sources"]
+    subgraph Knowledge["Knowledge Sources"]
         direction TB
-        PK_Box["PARAMETRIC KNOWLEDGE<br/>fa:fa-brain Learned (Public Data)"]
-        GK_Box["GROUNDED KNOWLEDGE<br/>fa:fa-cog Contextual (Private Data)"]
+        PK_Box["fa:fa-brain PARAMETRIC<br/><small><i>(Training Data)</i></small>"]
+        GK_Box["fa:fa-shield-halved GROUNDED<br/><small><i>(Repository Files)</i></small>"]
     end
 
-    Top --> AI_Agent["fa:fa-robot AI Agent"]
+    Knowledge --> AI_Agent["fa:fa-robot AI Agent"]
 
-    subgraph Flow["Grounded Knowledge Flow"]
+    subgraph Flow["The Grounding Process"]
         direction LR
-        Inputs["fa:fa-folder-open Context Inputs<br/>*.instructions.md / AGENTS.md"]
-        Skills["fa:fa-check-double Derived Skills Pool<br/>fa:fa-flask fa:fa-cubes"]
-        Outcomes["fa:fa-book-open Applied Outcomes<br/>Component Library & Standards"]
+        Inputs["fa:fa-file-import Context Inputs<br/><small><i>AGENTS.md</i></small>"]
+        Skills["fa:fa-gears Derived Skills<br/><small><i>SKILL.md</i></small>"]
+        Outcomes["fa:fa-clipboard-check Applied Outcomes<br/><small><i>(Good Code)</i></small>"]
 
         Inputs --> Skills --> Outcomes
     end
- 
-    AI_Agent --> Flow
 
-    %% style PK_Box fill:#f9f9f9,stroke:#ddd,stroke-width:1px
-    %% style GK_Box fill:#f9f9f9,stroke:#ddd,stroke-width:1px
+    AI_Agent --> Flow
 ```
 
 > **Speaking Notes:**
@@ -704,7 +701,41 @@ graph LR
 
 ---
 
-## Appendix I: Example Failure Composition
+## Appendix J: Knowledge Flow — High-Impact Icons _(1 min)_
+
+```mermaid
+graph TB
+    subgraph Knowledge["Knowledge Sources"]
+        direction TB
+        PK_Box["fa:fa-brain PARAMETRIC<br/><small><i>(Training Data)</i></small>"]
+        GK_Box["fa:fa-shield-halved GROUNDED<br/><small><i>(Repository Files)</i></small>"]
+    end
+
+    Knowledge --> AI_Agent["fa:fa-robot AI Agent"]
+
+    subgraph Flow["The Grounding Process"]
+        direction LR
+        Inputs["CONTEXT<br/>fa:fa-file-import<br/>INPUTS<br/><small><i>AGENTS.md</i></small>"]
+        Skills["DERIVED<br/>fa:fa-gears<br/>SKILLS<br/><small><i>SKILL.md</i></small>"]
+        Outcomes["APPLIED<br/>fa:fa-clipboard-check<br/>OUTCOMES<br/><small><i>(Good Code)</i></small>"]
+
+        Inputs --> Skills --> Outcomes
+    end
+
+    AI_Agent --> Flow
+
+    style PK_Box font-size:24px
+    style GK_Box font-size:24px
+    style AI_Agent font-size:24px
+    style Inputs font-size:24px
+    style Skills font-size:24px
+    style Outcomes font-size:24px
+```
+
+> **Speaking Notes:**
+> "This appendix slide provides a high-density iconography view of the knowledge flow. It maps the abstract concepts of Parametric and Grounded knowledge to the specific tools and outcomes we've discussed, using a full suite of Font Awesome markers for clarity."
+
+---
 
 ```mermaid
 pie title "Example Failure Composition"
