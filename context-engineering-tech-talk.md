@@ -188,46 +188,60 @@ graph LR
 
 ---
 
-## Slide 6: Parametric vs. Grounded Knowledge — Why This Works _(1.5 min)_
+## Slide 6: AI Agent Knowledge Flow — Leveraging Grounded Context _(1.5 min)_
 
 ```mermaid
 graph TB
-    subgraph Agent["AI Coding Agent"]
+    subgraph Top["Knowledge Sources"]
         direction LR
-        PK["Parametric Knowledge<br/><i>Training Data</i><br/>General syntax, patterns<br/>Fixed at cutoff"]
-        GC["Grounded Context<br/><i>Repository Files</i><br/>Your APIs, conventions<br/>Real-time state"]
+        PK_Box["PARAMETRIC KNOWLEDGE<br/>fa:fa-brain Learned (Public Data)"]
+        GK_Box["GROUNDED KNOWLEDGE<br/>fa:fa-cog CONTEXTUAL (Private Data)"]
     end
 
-    PK -->|"Reconciliation<br/>via Attention Budget"| Decision{"Decision<br/>Point"}
-    GC -->|"Injected or<br/>Retrieved"| Decision
+    Top --> AI_Agent["fa:fa-robot AI Agent"]
 
-    Decision -->|"Context Available"| Good["Correct, Framework-Aligned Code"]
-    Decision -->|"Context Missing"| Bad["'Confidently Wrong' Output<br/>Compiles but violates conventions"]
+    subgraph Flow["Grounded Knowledge Flow"]
+        direction LR
+        Inputs["fa:fa-folder-open Context Inputs<br/>*.instructions.md / AGENTS.md"]
+        Skills["fa:fa-check-double Derived Skills Pool<br/>fa:fa-flask fa:fa-cubes"]
+        Outcomes["fa:fa-book-open Applied Outcomes<br/>Component Library & Standards"]
 
+        Inputs --> Skills --> Outcomes
+    end
+
+    AI_Agent --> Inputs
+
+    style PK_Box fill:#f9f9f9,stroke:#ddd,stroke-width:1px
+    style GK_Box fill:#f9f9f9,stroke:#ddd,stroke-width:1px
 ```
 
 > **Speaking Notes:**
-> "Now you know _what_ to do — let me explain _why_ it works. Every AI agent has two knowledge sources. _Parametric_ — what it learned in training. _Grounded_ — what's in your repo right now. Your private APIs, your naming conventions — none of that is in the training data. When agents can't find grounded context, they guess _confidently_. The files we just set up provide that grounded context so the agent stops guessing."
+> "To understand why context engineering is so effective, we have to look at the two types of knowledge an agent uses.
+>
+> On the left is **Parametric Knowledge**. This is what the model learned during training from public data—React patterns, Tailwind syntax, general coding logic. It's static, general, and frozen at the training cutoff. This is the 'brain' of the agent.
+>
+> On the right is **Grounded Knowledge**. This is the private, project-specific context we provide. It starts with **Context Inputs** like your `agents.md` and `*.instructions.md` files. These inputs feed into a **Derived Skills Pool**—workflows and testing patterns specific to your codebase.
+>
+> The result is **Applied Outcomes**: a component library and repo standards guide that the agent actually follows. When we bridge the gap between what the agent 'knows' and how your project 'works', we move from 'confidently wrong' guesses to deterministic, production-ready code."
 
 ---
 
-## Slide 7: Passive vs. Active Context — Why Passive Wins _(2 min)_
+## Slide 8: Passive vs. Active Context — Why Passive Wins _(2 min)_
 
 ```mermaid
 graph TB
     subgraph Passive["PASSIVE STEERING (Push)"]
         direction TB
-        P1["AGENTS.md"]
-        P2["copilot-instructions.md"]
-        P3["*.instructions.md files"]
-        P1 & P2 & P3 --> PS["System Prompt<br/><b>Always Present</b>"]
+        P1["<b>AGENTS.md + copilot-instructions.md</b><br/>Project context & global standards"]
+        P2["*.instructions.md files"]
+        P1 & P2 --> PS["System Prompt<br/><b>Always Present</b>"]
     end
 
     subgraph Active["ACTIVE RETRIEVAL (Pull)"]
         direction TB
         A1["read_file"]
-        A2["grep_search"]
-        A3["semantic/code search"]
+        A2["<b>Search Tools</b><br/>grep_search + semantic/code search"]
+        A3["MCP Servers"]
         AD{"Agent Decides<br/>What to Search"} --> A1 & A2 & A3
     end
 
@@ -258,7 +272,7 @@ xychart-beta
 
 ---
 
-## Slide 8: Research Snapshot — What the Data Says _(1.5 min)_
+## Slide 9: Research Snapshot — What the Data Says _(1.5 min)_
 
 ```mermaid
 graph LR
@@ -291,7 +305,7 @@ graph LR
 
 ---
 
-## Slide 9: The Five Pillars of AI-Native Repos _(1 min)_
+## Slide 10: The Five Pillars of AI-Native Repos _(1 min)_
 
 ```mermaid
 graph LR
@@ -325,7 +339,7 @@ graph LR
 
 ---
 
-## Slide 10: Maturity Model & Call to Action _(2 min)_
+## Slide 11: Maturity Model & Call to Action _(2 min)_
 
 ```mermaid
 graph LR
@@ -378,7 +392,7 @@ graph LR
 
 ---
 
-## Slide 11: References
+## Slide 12: References
 
 > (No diagram — text-only slide)
 
@@ -654,7 +668,6 @@ graph LR
     subgraph ActiveLayer["Active Retrieval Layer"]
         RF["read_file"]
         GS["grep_search"]
-        SS["semantic/code search"]
         MCP["MCP Servers"]
     end
 
@@ -670,10 +683,13 @@ graph LR
     ActiveLayer -->|"On-demand search"| Agent
     SkillsLayer -->|"Progressive disclosure"| Agent
 
-    Agent --> Output["Deterministic<br/>Framework-Aligned<br/>Convention-Compliant<br/>Code"]
+    Agent --> Output["Good Code :)"]
 ```
 
 > **Speaking Notes:**
+
+> (Right side of slide) Good Code = Deterministic Framework-Aligned Convention-Compliant Code
+
 > "This diagram is the big picture — everything we've discussed in one view.
 >
 > At the top left, the developer's request flows into the AI agent. Three context layers feed into the agent simultaneously.
