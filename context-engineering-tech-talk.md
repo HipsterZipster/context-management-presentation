@@ -389,7 +389,43 @@ graph LR
 
 ---
 
-## Slide 12: References
+## Slide 12: The Architecture of Context — One Diagram _(4 min)_
+
+```mermaid
+graph LR
+    subgraph Repo["YOUR REPOSITORY — Add in One Afternoon"]
+        direction TB
+        F1["<b>AGENTS.md</b><br/><small>Project context · Commands · Conventions</small>"]
+        F2["<b>copilot-instructions.md</b><br/><small>Global coding standards</small>"]
+        F3["<b>*.instructions.md</b><br/><small>Scoped rules per framework via globs</small>"]
+        F4["<b>Skills + MCP</b><br/><small>Reusable workflows · Tool access</small>"]
+    end
+
+    F1 & F2 & F3 -->|"PASSIVE"| Sys["<b>System Prompt</b><br/><small>Always present · No decision point</small>"]
+    F4 -->|"ACTIVE"| Pull["<b>On-Demand Search</b><br/><small>Agent-initiated · Skipped 44% of time</small>"]
+
+    Sys --> Agent["<b>AI Agent</b><br/><small>Parametric knowledge (training)<br/>+ Grounded knowledge (your repo)</small>"]
+    Pull --> Agent
+
+    Agent --> Code["<b>100% Task Success</b><br/><small>vs 53% baseline · Vercel Jan 2026</small>"]
+```
+
+> **Speaking Notes:**
+> "This single diagram is the entire talk in one view. Read it left to right.
+>
+> Start on the left — **your repository.** Four files, added in one afternoon. AGENTS.md with your project context, commands, and conventions. copilot-instructions.md for global coding standards. Scoped `*.instructions.md` files that activate per framework using glob patterns. And Skills plus MCP for reusable workflows and external tool access.
+>
+> Now follow the arrows — **two delivery paths.** The top three files feed into **passive injection** — they're loaded into the system prompt every single turn. No decision point. The agent can't skip what's already in its prompt. Skills and MCP use **active retrieval** — the agent decides when to search. Vercel found agents skip searching 44% of the time because they think they already know the answer.
+>
+> In the center — **the AI agent.** It merges two types of knowledge: parametric knowledge from training data — general patterns, language syntax, public frameworks — and grounded knowledge from your repo files — your conventions, your commands, your tribal knowledge. When both are present, the agent stops guessing and starts following your rules.
+>
+> On the right — **the result.** Vercel measured this in January 2026: without context files, agents hit 53% task success. With a compressed 8KB AGENTS.md passively injected? 100%. Not because the model got smarter — because it got the right context at the right time, every time.
+>
+> That's context engineering in one picture. Four files. One afternoon. Passive beats active. 53% becomes 100%. Go do it before your next standup."
+
+---
+
+## Slide 13: References
 
 > (No diagram — text-only slide)
 
