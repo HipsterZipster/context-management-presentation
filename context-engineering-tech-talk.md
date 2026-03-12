@@ -193,9 +193,9 @@ graph LR
 ```mermaid
 graph TB
     subgraph Top["Knowledge Sources"]
-        direction LR
+        direction TB
         PK_Box["PARAMETRIC KNOWLEDGE<br/>fa:fa-brain Learned (Public Data)"]
-        GK_Box["GROUNDED KNOWLEDGE<br/>fa:fa-cog CONTEXTUAL (Private Data)"]
+        GK_Box["GROUNDED KNOWLEDGE<br/>fa:fa-cog Contextual (Private Data)"]
     end
 
     Top --> AI_Agent["fa:fa-robot AI Agent"]
@@ -208,11 +208,11 @@ graph TB
 
         Inputs --> Skills --> Outcomes
     end
+ 
+    AI_Agent --> Flow
 
-    AI_Agent --> Inputs
-
-    style PK_Box fill:#f9f9f9,stroke:#ddd,stroke-width:1px
-    style GK_Box fill:#f9f9f9,stroke:#ddd,stroke-width:1px
+    %% style PK_Box fill:#f9f9f9,stroke:#ddd,stroke-width:1px
+    %% style GK_Box fill:#f9f9f9,stroke:#ddd,stroke-width:1px
 ```
 
 > **Speaking Notes:**
