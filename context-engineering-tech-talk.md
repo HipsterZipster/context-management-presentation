@@ -80,25 +80,26 @@ graph TB
     Rule --> AGENTS
 
     AGENTS --> Core
-    AGENTS --> Quality
+    AGENTS --> Guardrails
 
     Core["Core Sections"]
-    Quality["Quality & Risk"]
+    Guardrails["Quality Guardrails"]
 
-    Core --> Section1["Project Overview<br/><i>One sentence + tech stack</i>"]
-    Core --> Section2["Setup & Run Commands<br/><i>install, dev, build, test, lint</i>"]
-    Core --> Section3["Code Style & Conventions<br/><i>TypeScript strict, functional React</i>"]
+    Core --> Section1["Code Conventions<br/>Tech Stack,<br/>TypeScript strict, functional React"]
+    Core --> Section2["Setup & Run Commands<br/>install, dev, build, test, lint"]
 
-    Quality --> Section4["Testing & Validation<br/><i>Run full suite before PR</i>"]
-    Quality --> Section5["Common Pitfalls<br/><i>Never use deprecated X</i>"]
+    Guardrails --> Section4["Validation Gates<br/>Run full suite before PR"]
+    Guardrails --> Section5["Common Pitfalls<br/>Never use deprecated X"]
 ```
 
 > **Speaking Notes:**
 > "What goes in AGENTS.md? The diagram breaks it into two groups.
 >
-> **Core sections** — the essentials. First, a one-sentence project overview with your tech stack. Second, setup and run commands — install, dev, build, test, lint — in execution order so the agent can actually run your project. Third, code style and conventions — things like 'TypeScript strict mode, functional React components only.'
+> **Core sections** — the operating context. First, your tech stack and key code conventions — things like 'TypeScript strict mode, functional React components only.' Second, setup and run commands — install, dev, build, test, lint — in execution order so the agent can actually operate the repo.
 >
-> **Quality and risk sections** — these save you from the subtle bugs. Testing and validation — 'run the full suite before any PR.' And common pitfalls — 'never use the deprecated X API, always use Y instead.'
+> **Quality guardrails** — these define the bar for a correct change. Validation gates mean 'run the full suite before any PR.' Common pitfalls mean 'never use the deprecated X API, always use Y instead.'
+>
+> You'll notice testing appears on both sides, and that's intentional. On the left, `test` is a command the agent can run. On the right, validation is the policy that tells the agent when running tests is mandatory and how strong the check needs to be.
 >
 > The rule at the top matters most: keep it under two pages. Vercel proved that a compressed 8KB index beat 40KB of full documentation. Why? Because concise context stays in the attention window. Verbose context gets compressed away. Encode your _tribal knowledge_ — the non-obvious stuff that burns people — and leave out anything the agent already knows from training data."
 
@@ -167,20 +168,11 @@ graph LR
 ## Slide 5: Example Repo in Action — "acme-webapp" _(1 min)_
 
 ```mermaid
-graph LR
+flowchart LR
     Root["acme-webapp/"]
-
-    Root --> AGENTS["AGENTS.md<br/><i>Project context</i>"]
-    Root --> GH[".github/"]
-    Root --> PKG["packages/"]
-
-    GH --> CPI["copilot-instructions.md<br/><i>Global standards</i>"]
-    GH --> INST["instructions/<br/><i>Scoped rules per framework</i>"]
-    GH --> PROMPTS["prompts/<br/><i>Team-shared templates</i>"]
-    GH --> WS["skills/<br/><i>Reusable workflows</i>"]
-
-    PKG --> FE["frontend/ + AGENTS.md"]
-    PKG --> BE["backend/ + AGENTS.md"]
+    Root --> O1["root<br/>AGENTS.md<br/><small><i>Project context</i></small>"]
+    Root --> O2[".github/<br/>copilot-instructions.md<br/><small><i>Global standards</i></small><br/>instructions/<br/><small><i>Scoped rules</i></small><br/>prompts/<br/><small><i>Team-shared templates</i></small><br/>skills/<br/><small><i>Reusable workflows</i></small>"]
+    Root --> O3["packages/<br/>frontend/ + AGENTS.md<br/>backend/ + AGENTS.md<br/><small><i>Package-level rules</i></small>"]
 ```
 
 > **Speaking Notes:**
@@ -188,117 +180,48 @@ graph LR
 
 ---
 
-## Slide 6: AI Agent Knowledge Flow — Leveraging Grounded Context _(1.5 min)_
+## Slide 6: How Context Changes the Model _(2 min)_
 
 ```mermaid
-graph TB
-    subgraph Knowledge["Knowledge Sources"]
-        direction TB
-        PK_Box["fa:fa-brain PARAMETRIC<br/><small><i>(Training Data)</i></small>"]
-        GK_Box["fa:fa-shield-halved GROUNDED<br/><small><i>(Repository Files)</i></small>"]
-    end
-
-    Knowledge --> AI_Agent["fa:fa-robot AI Agent"]
-
-    subgraph Flow["The Grounding Process"]
-        direction LR
-        Inputs["fa:fa-file-import Context Inputs<br/><small><i>AGENTS.md</i></small>"]
-        Skills["fa:fa-gears Derived Skills<br/><small><i>SKILL.md</i></small>"]
-        Outcomes["fa:fa-clipboard-check Applied Outcomes<br/><small><i>(Good Code)</i></small>"]
-
-        Inputs --> Skills --> Outcomes
-    end
-
-    AI_Agent --> Flow
+flowchart LR
+    Param["Parametric knowledge<br/>training priors"] --> Agent["Agent"]
+    Passive["AGENTS.md + instructions<br/><b>Passive:</b> in prompt by default"] --> Agent
+    Active["Search + MCP<br/><b>Active:</b> deeper lookup<br/><b>44% skipped</b>"] -.-> Agent
+    Agent --> Reasoning["Repo-grounded reasoning"]
+    Reasoning --> Output["Code aligned to this repo"]
 ```
 
 > **Speaking Notes:**
-> "To understand why context engineering is so effective, we have to look at the two types of knowledge an agent uses.
+> "What changes the output isn't that the model gets a new brain. It gets better inputs.
 >
-> On the left is **Parametric Knowledge**. This is what the model learned during training from public data—React patterns, Tailwind syntax, general coding logic. It's static, general, and frozen at the training cutoff. This is the 'brain' of the agent.
+> **Parametric knowledge** is still the base model — everything it learned during training from public code and documentation. That's useful, but generic.
 >
-> On the right is **Grounded Knowledge**. This is the private, project-specific context we provide. It starts with **Context Inputs** like your `agents.md` and `*.instructions.md` files. These inputs feed into a **Derived Skills Pool**—workflows and testing patterns specific to your codebase.
+> The big shift is **passive repo context**. Your `AGENTS.md` and instruction files are already in the prompt before the agent starts reasoning. That means your commands, conventions, and constraints are present by default.
 >
-> The result is **Applied Outcomes**: a component library and repo standards guide that the agent actually follows. When we bridge the gap between what the agent 'knows' and how your project 'works', we move from 'confidently wrong' guesses to deterministic, production-ready code."
+> **Active retrieval** still matters — search and MCP are great for deeper lookup — but they're secondary because the agent has to decide to use them. Vercel found that decision gets skipped **44% of the time**.
+>
+> When passive context and selective retrieval feed the same agent, it stops reasoning only from training priors and starts reasoning from the repository itself. That's the mechanism."
 
 ---
 
-## Slide 8: Passive vs. Active Context — Why Passive Wins _(2 min)_
-
-```mermaid
-graph TB
-    subgraph Passive["PASSIVE STEERING (Push)"]
-        direction TB
-        P1["<b>AGENTS.md + copilot-instructions.md</b><br/>Project context & global standards"]
-        P2["*.instructions.md files"]
-        P1 & P2 --> PS["System Prompt<br/><b>Always Present</b>"]
-    end
-
-    subgraph Active["ACTIVE RETRIEVAL (Pull)"]
-        direction TB
-        A1["read_file"]
-        A2["<b>Search Tools</b><br/>grep_search + semantic/code search"]
-        A3["MCP Servers"]
-        AD{"Agent Decides<br/>What to Search"} --> A1 & A2 & A3
-    end
-
-    PS --> Agent["Agent"]
-    A1 & A2 & A3 --> Agent
-
-    Agent --> Output["Generated Code"]
-```
+## Slide 8: ETH Zürich — What They Actually Found _(1.5 min)_
 
 ```mermaid
 xychart-beta
-    title "Vercel Agent Eval Results (Jan 2026)"
-    x-axis ["Baseline (No Context)", "Skills Only (Active)", "Skills + Prompting", "AGENTS.md (Passive)"]
-    y-axis "Task Success Rate (%)" 0 --> 100
-    bar [53, 53, 79, 100]
+    title "ETH Zürich AGENTbench: Relative Task Success"
+    x-axis ["No Context", "Dev-Written", "LLM-Generated"]
+    y-axis "No Context = 100" 95 --> 105
+    bar [100, 104, 97]
 ```
 
 > **Speaking Notes:**
-> "There are two ways to get context to an agent, and the diagram on the left shows both.
+> "ETH Zürich ran the most rigorous public study so far: **138 tasks across 12 repositories** with **4 different agents**.
 >
-> **Passive steering** — the push model. Your AGENTS.md, copilot-instructions.md, and scoped `*.instructions.md` files all get injected directly into the system prompt. They're _always present_. The agent doesn't choose to load them — they're just there.
+> This chart shows the headline result with **no context** normalized to 100. **Developer-written context files** only improved task success by about **4% on average**. **LLM-generated context files** actually made performance slightly worse — about **3% down on average**.
 >
-> **Active retrieval** — the pull model. The agent decides to search using tools like `read_file`, `grep_search`, or semantic/code search. The critical word is _decides_. There's a decision point, and Vercel found that agents skip searching **44% of the time** because they think they already know the answer.
+> But the paper's nuance matters: context files still changed behavior. Agents explored more broadly, ran more tests, and increased reasoning effort — with **over 20% higher inference cost**.
 >
-> Now look at the bar chart on the right — this is Vercel's actual eval data from January 2026. Baseline with no context files: 53% task success. Skills only — that's pure active retrieval — same 53%. Skills with explicit prompting: 79%. But a compressed 8KB AGENTS.md injected passively into the prompt? **100% success rate.**
->
-> The takeaway is clear: passive removes the decision point entirely. The agent can't skip what's already in its prompt."
-
----
-
-## Slide 9: Research Snapshot — What the Data Says _(1.5 min)_
-
-```mermaid
-graph LR
-    subgraph V["Vercel Eval (Jan 2026)"]
-        direction TB
-        V1["New APIs absent from training<br/>53% → 100% with AGENTS.md"]
-    end
-
-    subgraph E["ETH Zürich (arXiv 2602.11988)"]
-        direction TB
-        E1["138 tasks, 12 repos, 4 agents<br/>Marginal success-rate impact<br/>But: +22% reasoning, more testing"]
-    end
-
-    V --> R{"When does it help most?"}
-    E --> R
-
-    R --> I["1) Knowledge absent from training<br/>2) Project-specific conventions<br/>3) Tribal knowledge not in docs"]
-```
-
-> **Speaking Notes:**
-> "Let's be honest about the research — the diagram shows both sides.
->
-> On the left, **Vercel's eval** from January 2026: they tested new APIs that were absent from the model's training data. Result: 53% baseline jumped to 100% with AGENTS.md. Dramatic.
->
-> On the right, **ETH Zürich's rigorous study** — 138 tasks across 12 repos with 4 different agents. They found marginal success-rate impact. But here's the nuance: they saw +22% improvement in reasoning quality and agents wrote more tests.
->
-> A practical interpretation is: _when does it help most?_ Three conditions — first, when knowledge is absent from training data. Second, when you have project-specific conventions the model has never seen. Third, when there's tribal knowledge that's not in any documentation.
->
-> Practical takeaway: don't auto-generate AGENTS.md with an LLM — those are redundant with what's already in the training data. Write it yourself. Encode the stuff that burns people — the non-obvious decisions, the 'we tried X and it broke everything' knowledge. That's where the ROI is."
+> The practical takeaway is not 'context files don't matter.' It's that **minimal, human-written context** is much safer than auto-generated boilerplate. Write the non-obvious repo rules yourself and keep them lean."
 
 ---
 
@@ -343,7 +266,7 @@ graph LR
     L1["Level 1<br/><b>Functional</b><br/>Builds & tests exist"]
     L2["Level 2<br/><b>Documented</b><br/>AGENTS.md +<br/>custom instructions"]
     L3["Level 3<br/><b>Standardized</b><br/>Scoped rules +<br/>monorepo routing"]
-    L4["Level 4<br/><b>Optimized</b><br/>Skills + MCP"]
+    L4["Level 4<br/><b>Optimized</b><br/>Prompts + Skills"]
     L5["Level 5<br/><b>Autonomous</b><br/>Living maintenance +<br/>measured metrics"]
 
     L1 --> L2 --> L3 --> L4 --> L5
@@ -389,39 +312,63 @@ graph LR
 
 ---
 
-## Slide 12: The Architecture of Context — One Diagram _(4 min)_
+## Slide 12: The Same Model, Different Outcome _(4 min)_
 
 ```mermaid
-graph LR
-    subgraph Repo["YOUR REPOSITORY — Add in One Afternoon"]
+flowchart LR
+    subgraph Default["DEFAULT REPO"]
         direction TB
-        F1["<b>AGENTS.md</b><br/><small>Project context · Commands · Conventions</small>"]
-        F2["<b>copilot-instructions.md</b><br/><small>Global coding standards</small>"]
-        F3["<b>*.instructions.md</b><br/><small>Scoped rules per framework via globs</small>"]
-        F4["<b>Skills + MCP</b><br/><small>Reusable workflows · Tool access</small>"]
+        D1["Code + README"]
+        D2["No repo rules<br/>in prompt"]
+        D3["Optional retrieval"]
+        D4["Training priors<br/>fill the gaps"]
+        D5["Wrong for repo<br/>53% baseline"]
+
+        D1 --> D2
+        D1 --> D3
+        D2 --> D4
+        D3 --> D4
+        D4 --> D5
     end
 
-    F1 & F2 & F3 -->|"PASSIVE"| Sys["<b>System Prompt</b><br/><small>Always present · No decision point</small>"]
-    F4 -->|"ACTIVE"| Pull["<b>On-Demand Search</b><br/><small>Agent-initiated · Skipped 44% of time</small>"]
+    subgraph Native["AI-NATIVE REPO"]
+        direction TB
+        N1["AGENTS + instructions"]
+        N2["Repo rules<br/>in prompt"]
+        N3["Retrieval still available"]
+        N4["Repo-grounded<br/>reasoning"]
+        N5["Aligned output<br/>100% with AGENTS.md"]
 
-    Sys --> Agent["<b>AI Agent</b><br/><small>Parametric knowledge (training)<br/>+ Grounded knowledge (your repo)</small>"]
-    Pull --> Agent
+        N1 --> N2
+        N1 --> N3
+        N2 --> N4
+        N3 --> N4
+        N4 --> N5
+    end
 
-    Agent --> Code["<b>100% Task Success</b><br/><small>vs 53% baseline · Vercel Jan 2026</small>"]
+    classDef neutral fill:#1a1a28,stroke:#818cf8,color:#f0f0fc,stroke-width:1.5px;
+    classDef bad fill:#2a161d,stroke:#f87171,color:#f0f0fc,stroke-width:1.5px;
+    classDef good fill:#112838,stroke:#22d3ee,color:#f0f0fc,stroke-width:1.5px;
+    classDef muted fill:#13141c,stroke:#596075,color:#98a0b8,stroke-width:1px;
+
+    class D1,D2,D3,D4,N1,N2,N3,N4 neutral;
+    class D5 bad;
+    class N5 good;
+    class N0 muted;
 ```
 
 > **Speaking Notes:**
-> "This single diagram is the entire talk in one view. Read it left to right.
+> "This is the whole talk in one picture. The key idea is simple: **same model, different context, different outcome.** I'll walk it in four beats.
 >
-> Start on the left — **your repository.** Four files, added in one afternoon. AGENTS.md with your project context, commands, and conventions. copilot-instructions.md for global coding standards. Scoped `*.instructions.md` files that activate per framework using glob patterns. And Skills plus MCP for reusable workflows and external tool access.
+> **1) Start on the left — the default repo.** Most repositories already have code and a README. That's necessary, but it's not enough. The missing piece is that the agent has **no project-specific rules in its system prompt.** It can try active retrieval — `read_file`, search tools, MCP — but that only works if the agent decides to use them. When it doesn't have your repo conventions in front of it, it falls back to **training priors** — generic patterns from public data. That's why the code often compiles, but is still wrong for your repo.
 >
-> Now follow the arrows — **two delivery paths.** The top three files feed into **passive injection** — they're loaded into the system prompt every single turn. No decision point. The agent can't skip what's already in its prompt. Skills and MCP use **active retrieval** — the agent decides when to search. Vercel found agents skip searching 44% of the time because they think they already know the answer.
+> **2) Now move to the right — the AI-native repo.** Notice that it still has **code and a README.** We didn't replace the repo. We made it legible to the agent. In one afternoon, you add `AGENTS.md` plus instruction files — `.github/copilot-instructions.md` and scoped `*.instructions.md` files. That moves your project rules from tribal knowledge into machine-readable context.
 >
-> In the center — **the AI agent.** It merges two types of knowledge: parametric knowledge from training data — general patterns, language syntax, public frameworks — and grounded knowledge from your repo files — your conventions, your commands, your tribal knowledge. When both are present, the agent stops guessing and starts following your rules.
+> **3) The mechanism is the middle of the right-hand flow.** The biggest change is not that retrieval disappears — it doesn't. Retrieval is **still available**. The difference is that your most important rules are now **in the prompt by default** instead of hidden behind a decision point. Passive context gives the model the conventions, commands, and constraints up front. Active retrieval stays as a second layer for deeper lookup. So the model is no longer guessing from priors alone — it is reasoning with **repo-grounded context**.
 >
-> On the right — **the result.** Vercel measured this in January 2026: without context files, agents hit 53% task success. With a compressed 8KB AGENTS.md passively injected? 100%. Not because the model got smarter — because it got the right context at the right time, every time.
+> **4) End on the bottom row — the outcome.** On the left, generic reasoning plus optional retrieval yields a **53% baseline** in Vercel's new-API evals. On the right, the same underlying model with AGENTS.md passively injected reached **100% task success.** Not because the model got smarter. Because the repository got clearer.
 >
-> That's context engineering in one picture. Four files. One afternoon. Passive beats active. 53% becomes 100%. Go do it before your next standup."
+> That's the takeaway for this room: context engineering is really **repository engineering for agents.** Keep the code. Keep the README. Add the missing layer of structured context, make passive your default, and let retrieval play a supporting role."
 
 ---
 

@@ -42,9 +42,11 @@
 > **Speaking Notes:**
 > "What goes in AGENTS.md? The diagram breaks it into two groups.
 >
-> **Core sections** — the essentials. First, a one-sentence project overview with your tech stack. Second, setup and run commands — install, dev, build, test, lint — in execution order so the agent can actually run your project. Third, code style and conventions — things like 'TypeScript strict mode, functional React components only.'
+> **Core sections** — the operating context. First, your tech stack and key code conventions — things like 'TypeScript strict mode, functional React components only.' Second, setup and run commands — install, dev, build, test, lint — in execution order so the agent can actually operate the repo.
 >
-> **Quality and risk sections** — these save you from the subtle bugs. Testing and validation — 'run the full suite before any PR.' And common pitfalls — 'never use the deprecated X API, always use Y instead.'
+> **Quality guardrails** — these define the bar for a correct change. Validation gates mean 'run the full suite before any PR.' Common pitfalls mean 'never use the deprecated X API, always use Y instead.'
+>
+> You'll notice testing appears on both sides, and that's intentional. On the left, `test` is a command the agent can run. On the right, validation is the policy that tells the agent when running tests is mandatory and how strong the check needs to be.
 >
 > The rule at the top matters most: keep it under two pages. Vercel proved that a compressed 8KB index beat 40KB of full documentation. Why? Because concise context stays in the attention window. Verbose context gets compressed away. Encode your _tribal knowledge_ — the non-obvious stuff that burns people — and leave out anything the agent already knows from training data."
 
@@ -74,58 +76,47 @@
 
 ---
 
-## Slide 6: Parametric vs. Grounded Knowledge — Why This Works _(1.5 min)_
+## Slide 6: How Context Changes the Model _(2 min)_
 ![Slide 6 diagram](images/6.svg)
 
 > **Speaking Notes:**
-> "Now you know _what_ to do — let me explain _why_ it works. Every AI agent has two knowledge sources. _Parametric_ — what it learned in training. _Grounded_ — what's in your repo right now. Your private APIs, your naming conventions — none of that is in the training data. When agents can't find grounded context, they guess _confidently_. The files we just set up provide that grounded context so the agent stops guessing."
+> "What changes the output isn't that the model gets a new brain. It gets better inputs.
+>
+> **Parametric knowledge** is still the base model — everything it learned during training from public code and documentation. That's useful, but generic.
+>
+> The big shift is **passive repo context**. Your `AGENTS.md` and instruction files are already in the prompt before the agent starts reasoning. That means your commands, conventions, and constraints are present by default.
+>
+> **Active retrieval** still matters — search and MCP are great for deeper lookup — but they're secondary because the agent has to decide to use them. Vercel found that decision gets skipped **44% of the time**.
+>
+> When passive context and selective retrieval feed the same agent, it stops reasoning only from training priors and starts reasoning from the repository itself. That's the mechanism."
 
 ---
 
-## Slide 7: Passive vs. Active Context — Why Passive Wins _(2 min)_
-![Slide 7a diagram](images/7a.svg)
-![Slide 7b diagram](images/7b.svg)
-
-> **Speaking Notes:**
-> "There are two ways to get context to an agent, and the diagram on the left shows both.
->
-> **Passive steering** — the push model. Your AGENTS.md, copilot-instructions.md, and scoped `*.instructions.md` files all get injected directly into the system prompt. They're _always present_. The agent doesn't choose to load them — they're just there.
->
-> **Active retrieval** — the pull model. The agent decides to search using tools like `read_file`, `grep_search`, or semantic/code search. The critical word is _decides_. There's a decision point, and Vercel found that agents skip searching **44% of the time** because they think they already know the answer.
->
-> Now look at the bar chart on the right — this is Vercel's actual eval data from January 2026. Baseline with no context files: 53% task success. Skills only — that's pure active retrieval — same 53%. Skills with explicit prompting: 79%. But a compressed 8KB AGENTS.md injected passively into the prompt? **100% success rate.**
->
-> The takeaway is clear: passive removes the decision point entirely. The agent can't skip what's already in its prompt."
-
----
-
-## Slide 8: Research Snapshot — What the Data Says _(1.5 min)_
+## Slide 8: ETH Zürich — What They Actually Found _(1.5 min)_
 ![Slide 8 diagram](images/8.svg)
 
 > **Speaking Notes:**
-> "Let's be honest about the research — the diagram shows both sides.
+> "ETH Zürich ran the most rigorous public study so far: **138 tasks across 12 repositories** with **4 different agents**.
 >
-> On the left, **Vercel's eval** from January 2026: they tested new APIs that were absent from the model's training data. Result: 53% baseline jumped to 100% with AGENTS.md. Dramatic.
+> This chart shows the headline result with **no context** normalized to 100. **Developer-written context files** only improved task success by about **4% on average**. **LLM-generated context files** actually made performance slightly worse — about **3% down on average**.
 >
-> On the right, **ETH Zürich's rigorous study** — 138 tasks across 12 repos with 4 different agents. They found marginal success-rate impact. But here's the nuance: they saw +22% improvement in reasoning quality and agents wrote more tests.
+> But the paper's nuance matters: context files still changed behavior. Agents explored more broadly, ran more tests, and increased reasoning effort — with **over 20% higher inference cost**.
 >
-> A practical interpretation is: _when does it help most?_ Three conditions — first, when knowledge is absent from training data. Second, when you have project-specific conventions the model has never seen. Third, when there's tribal knowledge that's not in any documentation.
->
-> Practical takeaway: don't auto-generate AGENTS.md with an LLM — those are redundant with what's already in the training data. Write it yourself. Encode the stuff that burns people — the non-obvious decisions, the 'we tried X and it broke everything' knowledge. That's where the ROI is."
+> The practical takeaway is not 'context files don't matter.' It's that **minimal, human-written context** is much safer than auto-generated boilerplate. Write the non-obvious repo rules yourself and keep them lean."
 
 ---
 
-## Slide 9: The Five Pillars of AI-Native Repos _(1 min)_
-![Slide 9 diagram](images/9.svg)
+## Slide 10: The Five Pillars of AI-Native Repos _(1 min)_
+![Slide 10 diagram](images/10.svg)
 
 > **Speaking Notes:**
 > "Five pillars frame the whole approach. **Unified Knowledge** — AGENTS.md plus copilot-instructions. **Scoped Precision** — glob-matched rules per framework. **Monorepo Mastery** — nested files with nearest-file precedence. **AI-Readable Docs** — structured headings. **Living Maintenance** — quarterly audits. You already know how to do the first three from the audit slide. Pillars 4 and 5 are your this-week and this-month work."
 
 ---
 
-## Slide 10: Maturity Model & Call to Action _(2 min)_
-![Slide 10a diagram](images/10a.svg)
-![Slide 10b diagram](images/10b.svg)
+## Slide 11: Maturity Model & Call to Action _(2 min)_
+![Slide 11a diagram](images/11a.svg)
+![Slide 11b diagram](images/11b.svg)
 
 > **Speaking Notes:**
 > "Where is your repo today? The maturity model shows five levels.
@@ -140,7 +131,25 @@
 
 ---
 
-## Slide 11: References
+## Slide 12: The Same Model, Different Outcome _(4 min)_
+![Slide 12 diagram](images/12.svg)
+
+> **Speaking Notes:**
+> "This is the whole talk in one picture. The key idea is simple: **same model, different context, different outcome.** I'll walk it in four beats.
+>
+> **1) Start on the left — the default repo.** Most repositories already have code and a README. That's necessary, but it's not enough. The missing piece is that the agent has **no project-specific rules in its system prompt.** It can try active retrieval — `read_file`, search tools, MCP — but that only works if the agent decides to use them. When it doesn't have your repo conventions in front of it, it falls back to **training priors** — generic patterns from public data. That's why the code often compiles, but is still wrong for your repo.
+>
+> **2) Now move to the right — the AI-native repo.** Notice that it still has **code and a README.** We didn't replace the repo. We made it legible to the agent. In one afternoon, you add `AGENTS.md` plus instruction files — `.github/copilot-instructions.md` and scoped `*.instructions.md` files. That moves your project rules from tribal knowledge into machine-readable context.
+>
+> **3) The mechanism is the middle of the right-hand flow.** The biggest change is not that retrieval disappears — it doesn't. Retrieval is **still available**. The difference is that your most important rules are now **in the prompt by default** instead of hidden behind a decision point. Passive context gives the model the conventions, commands, and constraints up front. Active retrieval stays as a second layer for deeper lookup. So the model is no longer guessing from priors alone — it is reasoning with **repo-grounded context**.
+>
+> **4) End on the bottom row — the outcome.** On the left, generic reasoning plus optional retrieval yields a **53% baseline** in Vercel's new-API evals. On the right, the same underlying model with AGENTS.md passively injected reached **100% task success.** Not because the model got smarter. Because the repository got clearer.
+>
+> That's the takeaway for this room: context engineering is really **repository engineering for agents.** Keep the code. Keep the README. Add the missing layer of structured context, make passive your default, and let retrieval play a supporting role."
+
+---
+
+## Slide 13: References
 
 > (No diagram — text-only slide)
 
@@ -154,7 +163,7 @@
 ---
 
 ## Appendix A: Context Rot — The Silent Killer
-![Slide 11a diagram](images/11a.svg)
+![Slide 13a diagram](images/13a.svg)
 
 > **Speaking Notes:**
 > "Even with million-token context windows, there's a ticking time bomb. The diagram shows four zones as the window fills up.
@@ -172,7 +181,7 @@
 ---
 
 ## Appendix B: Anthropic's Progressive Disclosure
-![Slide 11b diagram](images/11b.svg)
+![Slide 13b diagram](images/13b.svg)
 
 > **Speaking Notes:**
 > "Anthropic's Skills framework is the gold standard for progressive disclosure. The diagram shows the complete flow.
@@ -188,7 +197,7 @@
 ---
 
 ## Appendix C: MCP + Skills Architecture
-![Slide 11c diagram](images/11c.svg)
+![Slide 13c diagram](images/13c.svg)
 
 > **Speaking Notes:**
 > "The diagram uses a cooking metaphor that makes this click.
@@ -204,7 +213,7 @@
 ---
 
 ## Appendix D: Copilot vs. Devin — Two Architectures
-![Slide 11d diagram](images/11d.svg)
+![Slide 13d diagram](images/13d.svg)
 
 > **Speaking Notes:**
 > "The diagram compares two leading tools side by side.
@@ -218,7 +227,7 @@
 ---
 
 ## Appendix E: Monorepo Routing — Nearest-File Precedence
-![Slide 11e diagram](images/11e.svg)
+![Slide 13e diagram](images/13e.svg)
 
 > **Speaking Notes:**
 > "The diagram shows exactly how file resolution works in a monorepo.
@@ -232,7 +241,7 @@
 ---
 
 ## Appendix F: The Hybrid Strategy Stack
-![Slide 11f diagram](images/11f.svg)
+![Slide 13f diagram](images/13f.svg)
 
 > **Speaking Notes:**
 > "The diagram shows the full strategy stack — five layers, bottom to top. Build from the foundation up.
@@ -252,7 +261,7 @@
 ---
 
 ## Appendix G: The Passive Steering Workflow
-![Slide 11g diagram](images/11g.svg)
+![Slide 13g diagram](images/13g.svg)
 
 > **Speaking Notes:**
 > "This sequence diagram shows exactly what happens under the hood when passive steering works.
@@ -268,9 +277,12 @@
 ---
 
 ## Appendix H: The Complete Context Architecture
-![Slide 11h diagram](images/11h.svg)
+![Slide 13h diagram](images/13h.svg)
 
 > **Speaking Notes:**
+
+> (Right side of slide) Good Code = Deterministic Framework-Aligned Convention-Compliant Code
+
 > "This diagram is the big picture — everything we've discussed in one view.
 >
 > At the top left, the developer's request flows into the AI agent. Three context layers feed into the agent simultaneously.
@@ -285,8 +297,14 @@
 
 ---
 
-## Appendix I: Example Failure Composition
-![Slide 11i diagram](images/11i.svg)
+## Appendix J: Knowledge Flow — High-Impact Icons _(1 min)_
+![Slide 13i diagram](images/13i.svg)
+
+> **Speaking Notes:**
+> "This appendix slide provides a high-density iconography view of the knowledge flow. It maps the abstract concepts of Parametric and Grounded knowledge to the specific tools and outcomes we've discussed, using a full suite of Font Awesome markers for clarity."
+
+---
+![Slide 13j diagram](images/13j.svg)
 
 > **Speaking Notes:**
 > "The pie chart shows an example failure composition for coding agents.
@@ -304,7 +322,7 @@
 ---
 
 ## Appendix J: Context File Impact by Scenario
-![Slide 11j diagram](images/11j.svg)
+![Slide 13k diagram](images/13k.svg)
 
 > **Speaking Notes:**
 > "This quadrant chart reconciles the Vercel and ETH Zürich results. Two axes: x-axis is project specificity (low to high), y-axis is whether the knowledge exists in training data (bottom) or not (top).
@@ -322,7 +340,7 @@
 ---
 
 ## Appendix K: Full Presentation Timeline
-![Slide 11k diagram](images/11k.svg)
+![Slide 13l diagram](images/13l.svg)
 
 > **Speaking Notes:**
 > "The timeline shows the full talk structure — four blocks flowing left to right.

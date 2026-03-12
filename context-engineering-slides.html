@@ -672,128 +672,67 @@
       <section class="slide" data-slide="6">
         <div class="sb">The Why</div>
         <h1>
-          Parametric vs. <span class="hl">Grounded</span> Knowledge<span
-            class="tm"
-            >1.5 min</span
+          How <span class="hl">Context Changes</span> the Model<span class="tm"
+            >2 min</span
           >
         </h1>
         <p class="st">
-          When grounded context is missing, parametric knowledge fills the gap —
-          <strong>confidently wrong</strong>.
+          The model is the same. The difference is whether repo rules arrive in
+          the prompt by default or stay hidden behind a retrieval decision.
         </p>
         <div class="dr">
           <div class="db f">
             <img
               src="images/6.svg"
-              alt="Parametric vs Grounded Knowledge diagram"
+              alt="How context changes the model"
               class="diagram-img"
             />
           </div>
         </div>
         <div class="kp">
           <div class="lb">Key Insight</div>
-          Your private APIs, naming conventions, monorepo structure — none of
-          that is in the training data. The files we just set up provide that
-          grounded context.
+          Passive context gives the agent commands, conventions, and constraints
+          <strong>before</strong> it starts reasoning. Search and MCP still
+          help, but only after the agent decides to use them.
         </div>
         <div class="sn">
-          <strong>Speaking Notes:</strong> "Now you know <em>what</em> to do —
-          let me explain <em>why</em> it works. Every AI agent has two knowledge
-          sources. <em>Parametric</em> — what it learned in training.
-          <em>Grounded</em> — what's in your repo right now. Your private APIs,
-          your naming conventions — none of that is in the training data. When
-          agents can't find grounded context, they guess <em>confidently</em>.
-          The files we just set up provide that grounded context so the agent
-          stops guessing."
+          <strong>Speaking Notes:</strong> "What changes the output isn't that
+          the model gets a new brain. It gets better inputs.
+          <em>Parametric knowledge</em> is still the base model — what it
+          learned in training. But passive repo context means AGENTS.md and
+          instruction files are already in the prompt before the agent starts
+          reasoning. Search and MCP still matter for deeper lookup, but they're
+          secondary because the agent has to decide to use them. When passive
+          context and selective retrieval feed the same agent, it stops
+          reasoning only from training priors and starts reasoning from the
+          repository itself."
         </div>
       </section>
 
       <section class="slide" data-slide="7">
         <div class="sb">The Why</div>
         <h1>
-          <span class="hl">Why Passive Wins</span><span class="tm">2 min</span>
-        </h1>
-        <p class="st">
-          Passive steering vs. active retrieval. When agents decide whether to
-          search, they skip docs 44% of the time.
-        </p>
-        <div class="g2">
-          <div class="db">
-            <img
-              src="images/7a.svg"
-              alt="Passive vs Active context delivery diagram"
-              class="diagram-img"
-            />
-          </div>
-          <div class="db">
-            <img
-              src="images/7b.svg"
-              alt="Vercel Agent Eval Results bar chart"
-              class="diagram-img"
-            />
-          </div>
-        </div>
-        <div class="kp">
-          <div class="lb">Critical Result</div>
-          A compressed <strong>8KB AGENTS.md</strong> achieved
-          <strong>100% success rate</strong> — beating 40KB of full docs via
-          Skills (53%).
-        </div>
-        <div class="src">
-          <a
-            href="https://vercel.com/blog/agents-md-outperforms-skills-in-our-agent-evals"
-            target="_blank"
-            >Vercel Blog, Jan 2026</a
-          >
-        </div>
-        <div class="sn">
-          <strong>Speaking Notes:</strong> "There are two ways to get context to
-          an agent. <em>Passive steering</em> — the push model. Your AGENTS.md,
-          copilot-instructions.md, and scoped
-          <code>*.instructions.md</code> files all get injected directly into
-          the system prompt. They're always present. <em>Active retrieval</em> —
-          the pull model. The agent decides to search using tools like
-          <code>read_file</code>, <code>grep_search</code>, or semantic/code
-          search. The critical word is <em>decides</em>. Vercel found agents
-          skip docs <strong>44% of the time</strong> because they think they
-          already know the answer. Skills only — same 53% as baseline. With
-          explicit prompting: 79%. But a compressed 8KB AGENTS.md in the prompt?
-          <strong>100% success rate.</strong> Passive removes the decision
-          point. The agent can't skip what's already in its prompt."
-        </div>
-      </section>
-
-      <section class="slide" data-slide="8">
-        <div class="sb">The Why</div>
-        <h1>
-          Research <span class="hl">Snapshot</span
+          ETH Zürich —
+          <span class="hl">What They Actually Found</span
           ><span class="tm">1.5 min</span>
         </h1>
         <p class="st">
-          Vercel shows dramatic gains. ETH Zürich finds marginal effects. A
-          practical interpretation is more useful than a simple reconciliation.
+          The strongest public academic study found only modest task-success
+          gains — but clear behavioral changes and higher cost.
         </p>
         <div class="dr center">
           <div class="db f">
             <img
               src="images/8.svg"
-              alt="Research snapshot: Vercel vs ETH Zürich"
+              alt="ETH Zürich relative task success chart"
               class="diagram-img"
             />
           </div>
         </div>
         <div class="kp">
           <div class="lb">Practical Takeaway</div>
-          Don't auto-generate AGENTS.md with an LLM — those are redundant.
-          <strong>Write it yourself.</strong> Encode your
-          <em>tribal knowledge</em>: the stuff not in any documentation.
-        </div>
-        <div class="src">
-          <a
-            href="https://vercel.com/blog/agents-md-outperforms-skills-in-our-agent-evals"
-            target="_blank"
-            >Vercel Blog</a
-          >
+          Minimal, developer-written context looks safer than auto-generated
+          boilerplate. Keep the file lean and focused on non-obvious repo rules.
         </div>
         <div class="src">
           <a href="https://arxiv.org/abs/2602.11988" target="_blank"
@@ -801,18 +740,17 @@
           >
         </div>
         <div class="sn">
-          <strong>Speaking Notes:</strong> "Let's be honest about the research.
-          Vercel showed 53% to 100% — dramatic. ETH Zürich found marginal
-          success-rate impact in a rigorous study. A practical interpretation
-          is:
-          <strong
-            >context files matter most when knowledge is absent from training
-            data.</strong
-          >
-          Vercel tested <em>new</em> APIs. ETH tested known tasks. Practical
-          takeaway: don't auto-generate these files with an LLM — encode your
-          <em>tribal knowledge</em>, the stuff not in any documentation. That's
-          where the ROI is."
+          <strong>Speaking Notes:</strong> "ETH Zürich ran the most rigorous
+          public study so far: 138 tasks across 12 repositories with 4 different
+          agents. This chart shows the headline result with no context
+          normalized to 100. Developer-written context files improved task
+          success by about 4% on average. LLM-generated context files made it
+          slightly worse — about 3% down on average. But the nuance matters:
+          context files still changed behavior. Agents explored more broadly,
+          ran more tests, and increased reasoning effort, with over 20% higher
+          inference cost. The practical takeaway is not that context files don't
+          matter — it's that minimal, human-written context is safer than
+          auto-generated boilerplate."
         </div>
       </section>
 
@@ -831,7 +769,7 @@
         <div class="dr center">
           <div class="db f">
             <img
-              src="images/9.svg"
+              src="images/10.svg"
               alt="Five Pillars of AI-Native Repos diagram"
               class="diagram-img"
             />
@@ -871,14 +809,14 @@
         <div class="g2" style="margin-bottom: 14px">
           <div class="db f">
             <img
-              src="images/10a.svg"
+              src="images/11a.svg"
               alt="Repository readiness maturity model"
               class="diagram-img"
             />
           </div>
           <div class="db f">
             <img
-              src="images/10b.svg"
+              src="images/11b.svg"
               alt="Call to action: Do Today, This Week, This Month"
               class="diagram-img"
             />
